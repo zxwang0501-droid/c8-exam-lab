@@ -1,9 +1,10 @@
 # Data C8 Exam Lab
 
-An unofficial, bilingual (English questions, Chinese explanations) practice tool for UC Berkeley Data C8 / Data 8, Foundations of Data Science.
+An unofficial practice tool for UC Berkeley Data C8 / Data 8, Foundations of Data Science.
 
 - Pick one or more topics, then generate an exam-style set: multiple choice, select-all, true/false, short answer, and Table-code fill-in questions.
 - Add case studies (大题): about 20 points each, with a background story, a data table, and parts (a), (b), (c) that combine several topics, like the long questions on finals. A one-click mock exam mixes 15 single questions with 3 case studies.
+- Switch the interface between 中英 (English questions, Chinese explanations), English, and Español. Everything is translated: questions, explanations, case studies, and concepts. Code stays in English.
 - Every question comes with an answer and an explanation. Short answers include grading key points.
 - A searchable concept list covers 23 topics in the course's lecture order.
 - A mistake book keeps track of missed questions, saved in your own browser.
@@ -16,4 +17,4 @@ Open `index.html` in any browser, or visit the GitHub Pages site.
 
 ## Edit
 
-The sources are in `src/`. The question bank is in `bank-*.js`, the case studies in `cases-*.js`, the randomized templates in `gen.js`, and the concepts in `kb.js`. After editing, run `./build.sh` to regenerate `index.html`.
+The sources are in `src/`. The question bank is in `bank-*.js`, the case studies in `cases-*.js`, the randomized templates in `gen.js`, and the concepts in `kb.js`. Translations are in `tr-*.js` and the interface text in `i18n.js`. After editing, run `./build.sh`: it writes `index.html` (standalone page for GitHub Pages) and `artifact.html` (the same page for the Claude artifact).

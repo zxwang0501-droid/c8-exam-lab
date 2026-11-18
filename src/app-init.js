@@ -1,38 +1,70 @@
+// ---------- static text & language ----------
+function applyStatic() {
+  document.documentElement.lang = {zh: 'zh-CN', en: 'en', es: 'es'}[LANG];
+  document.querySelectorAll('[data-t]').forEach(e => { e.textContent = t(e.dataset.t); });
+  document.querySelectorAll('[data-th]').forEach(e => { e.innerHTML = t(e.dataset.th); });
+  document.querySelectorAll('[data-tp]').forEach(e => { e.placeholder = t(e.dataset.tp); });
+  document.querySelectorAll('[data-lang]').forEach(b => { b.classList.toggle('on', b.dataset.lang === LANG); b.setAttribute('aria-pressed', b.dataset.lang === LANG); });
+  $('#langGroup').setAttribute('aria-label', t('langLabel'));
+}
+function setLang(l) {
+  if (l === LANG) return;
+  // Remember what was typed or ticked, re-translate the paper in place, then put the answers back.
+  const snap = [...document.querySelectorAll('#questions input, #questions textarea')].map(e => ({id: e.id, checked: e.checked, value: e.value}));
+  LANG = l; store.set('lang', l);
+  S.exam = S.exam.map(relocal);
+  applyStatic(); renderSetup(); renderKB(); renderMistakes();
+  renderExam(true);
+  snap.forEach(s => { const e = el(s.id); if (!e) return; if (e.type === 'radio' || e.type === 'checkbox') e.checked = s.checked; else e.value = s.value; });
+  units().forEach(({q, key}) => { if (q.res || q.self != null) showResult(key, false); });
+  if (S.submitted) renderResults();
+  updateAnswered();
+  const st = $('#status'); if (!st.hidden) setStatus('');
+}
+
 // ---------- setup rail ----------
 function renderSetup() {
   const counts = {};
-  TOPICS.forEach(t => counts[t.id] = BANK.filter(q => q.t.includes(t.id)).length + GENS.filter(g => g.t.includes(t.id)).length + CASES.filter(c => c.t.includes(t.id)).length);
-  $('#topicList').innerHTML = Object.entries(UNITS).map(([u, name]) => `<div class="unit"><h4>${name.zh} · ${name.en}</h4>` +
-    TOPICS.filter(t => t.unit === u).map(t => `<label class="topic${S.topics.has(t.id) ? ' on' : ''}" for="tp-${t.id}"><input type="checkbox" id="tp-${t.id}" data-topic="${t.id}"${S.topics.has(t.id) ? ' checked' : ''}><span>${esc(t.en)}<span class="tz">${esc(t.zh)}${WEAK.includes(t.id) ? ' · 弱项' : ''}</span></span><span class="n" title="题库题 + 随机模板 + 大题">${counts[t.id]}</span></label>`).join('') + `</div>`).join('');
-  $('#selCount').textContent = `已选 ${S.topics.size}`;
-  const seg = (sel, items, cur, attr) => { $(sel).innerHTML = items.map(([v, label, dis]) => `<button data-${attr}="${v}" class="${(cur instanceof Set ? cur.has(v) : cur == v) ? 'on' : ''}"${dis ? ' disabled' : ''}>${label}</button>`).join(''); };
+  TOPICS.forEach(x => counts[x.id] = BANK.filter(q => q.t.includes(x.id)).length + GENS.filter(g => g.t.includes(x.id)).length + CASES.filter(c => c.t.includes(x.id)).length);
+  $('#topicList').innerHTML = Object.keys(UNITS).map(u => `<div class="unit"><h4>${esc(unitName(u))}</h4>` +
+    TOPICS.filter(x => x.unit === u).map(x => `<label class="topic${S.topics.has(x.id) ? ' on' : ''}" for="tp-${x.id}"><input type="checkbox" id="tp-${x.id}" data-topic="${x.id}"${S.topics.has(x.id) ? ' checked' : ''}><span>${esc(topicName(x.id))}${LANG === 'zh' || WEAK.includes(x.id) ? `<span class="tz">${esc(topicSub(x.id))}${WEAK.includes(x.id) ? esc(t('weakTag')) : ''}</span>` : ''}</span><span class="n">${counts[x.id]}</span></label>`).join('') + `</div>`).join('');
+  $('#selCount').textContent = t('selCount', {n: S.topics.size});
+  const seg = (sel, items, cur, attr) => { $(sel).innerHTML = items.map(([v, label, dis]) => `<button data-${attr}="${v}" class="${(cur instanceof Set ? cur.has(v) : cur == v) ? 'on' : ''}"${dis ? ' disabled' : ''} aria-pressed="${cur instanceof Set ? cur.has(v) : cur == v}">${esc(label)}</button>`).join(''); };
   seg('#countSeg', [[0, '0'], [5, '5'], [10, '10'], [15, '15'], [20, '20'], [30, '30']], S.count, 'count');
-  seg('#caseSeg', [[0, '不要'], [1, '1 道'], [2, '2 道'], [3, '3 道']], S.cases, 'cases');
-  seg('#typeSeg', Object.entries(PTS).map(([k]) => [k, `${KIND[k].zh} ${KIND[k].en}`]), S.kinds, 'kind');
-  seg('#diffSeg', [['mixed', '混合 Mixed'], ['exam', '考试难度 Exam'], ['hard', '只要难题 Hard']], S.diff, 'diff');
-  seg('#modeSeg', [['practice', '练习 Practice'], ['exam', '考试 Exam']], S.mode, 'mode');
-  seg('#srcSeg', [['bank', '题库 + 随机模板'], ['ai', 'Claude 出新题', !S.sample]], S.src, 'src');
-  $('#srcHint').textContent = S.sample
-    ? (S.src === 'ai' ? '由 Claude 按所选知识点现场出题，大题也会现写（会用到你自己的 Claude 额度，第一次会请你授权）。' : '题库题都有标准答案和中文解析；随机模板每次生成新数字。')
-    : '题库题都有标准答案和中文解析。在 Claude 里打开本页时，还可以让 Claude 现场出新题（包括大题）、批改简答题。';
+  seg('#caseToggle', [['on', t('caseOn')], ['off', t('caseOff')]], S.caseOn ? 'on' : 'off', 'caseon');
+  seg('#caseSeg', [[1, t('caseN', {n: 1})], [2, t('caseN', {n: 2})], [3, t('caseN', {n: 3})]], S.cases, 'cases');
+  $('#caseSeg').hidden = !S.caseOn;
+  seg('#typeSeg', Object.keys(PTS).map(k => [k, LANG === 'zh' ? `${KIND[k].zh} ${KIND[k].en}` : KIND_L[k][LANG]]), S.kinds, 'kind');
+  seg('#diffSeg', [['mixed', t('dMixed')], ['exam', t('dExam')], ['hard', t('dHard')]], S.diff, 'diff');
+  seg('#modeSeg', [['practice', t('mPractice')], ['exam', t('mExam')]], S.mode, 'mode');
+  seg('#srcSeg', [['bank', t('sBank')], ['ai', t('sAI'), !S.sample]], S.src, 'src');
+  $('#srcHint').textContent = t(S.sample ? (S.src === 'ai' ? 'hintAI' : 'hintBank') : 'hintNoAI');
   const {statics, gens, cases} = poolFor(S.topics, S.kinds, S.diff);
-  $('#poolInfo').textContent = S.topics.size ? `当前组合：${statics.length} 道题库小题 + ${gens.length} 个随机模板 + ${cases.length} 道大题` : '';
+  $('#poolInfo').textContent = S.topics.size ? t('pool', {a: statics.length, b: gens.length, c: S.caseOn ? cases.length : 0}) : '';
 }
 
 // ---------- concepts ----------
+function kbEntry(topic, i) {
+  const [term, en, zh, trap] = KB[topic][i];
+  if (LANG === 'zh') return {name: term, lines: [['en', en], ['zh', zh]], trap};
+  if (LANG === 'en') return {name: term, lines: [['zh', en]], trap: KB_EN[topic]?.[i] || ''};
+  const es = KB_ES[topic]?.[i];
+  if (!es) return {name: term, lines: [['zh', en]], trap: ''};
+  return {name: es[0] === term ? term : `${es[0]} (${term})`, lines: [['zh', es[1]]], trap: es[2] || ''};
+}
 function renderKB() {
   const term = ($('#kbSearch').value || '').trim().toLowerCase();
-  const hl = s => { const h = esc(s); if (!term) return h; const t = esc(term).toLowerCase(); const i = h.toLowerCase().indexOf(t); return i < 0 ? h : h.slice(0, i) + '<mark>' + h.slice(i, i + t.length) + '</mark>' + h.slice(i + t.length); };
+  const hl = s => { const h = esc(s); if (!term) return h; const x = esc(term).toLowerCase(); const i = h.toLowerCase().indexOf(x); return i < 0 ? h : h.slice(0, i) + '<mark>' + h.slice(i, i + x.length) + '</mark>' + h.slice(i + x.length); };
   let shown = 0;
-  const html = TOPICS.map(t => {
-    const items = (KB[t.id] || []).filter(e => !term || e.join(' ').toLowerCase().includes(term) || t.en.toLowerCase().includes(term) || t.zh.includes(term));
+  const html = TOPICS.map(x => {
+    const items = (KB[x.id] || []).map((_, i) => kbEntry(x.id, i)).filter(e => !term || [e.name, e.trap, ...e.lines.map(l => l[1])].join(' ').toLowerCase().includes(term) || topicName(x.id).toLowerCase().includes(term) || x.zh.includes(term));
     if (!items.length) return '';
     shown += items.length;
-    return `<section class="kb-topic" id="kb-${t.id}"><header><h2>${esc(t.en)}</h2><span class="zh">${esc(t.zh)}</span><span class="lec">${UNITS[t.unit].en} · ${t.lec}</span><button class="ghost" data-drill="${t.id}">练这个知识点 Practice</button></header>
-      <div class="kb-list">${items.map(([name, en, zh, trap]) => `<div class="kb-item"><h3>${hl(name)}</h3><div class="en">${hl(en)}</div><div class="zh">${hl(zh)}</div>${trap ? `<div class="trap">${hl(trap)}</div>` : ''}</div>`).join('')}</div></section>`;
+    return `<section class="kb-topic" id="kb-${x.id}"><header><h2>${esc(topicName(x.id))}</h2>${LANG === 'zh' ? `<span class="zh">${esc(x.zh)}</span>` : ''}<span class="lec">${esc(LANG === 'es' ? UNIT_ES[x.unit] : UNITS[x.unit].en)} · ${x.lec}</span><button class="ghost" data-drill="${x.id}">${t('kbPractice')}</button></header>
+      <div class="kb-list">${items.map(e => `<div class="kb-item"><h3>${hl(e.name)}</h3>${e.lines.map(([cls, s]) => `<div class="${cls}">${hl(s)}</div>`).join('')}${e.trap ? `<div class="trap" data-label="${esc(t('kbTrap'))}">${hl(e.trap)}</div>` : ''}</div>`).join('')}</div></section>`;
   }).join('');
-  $('#kbBody').innerHTML = html || '<div class="empty">没有找到匹配的概念。No matching concepts.</div>';
-  $('#kbCount').textContent = `${shown} 个概念 · ${TOPICS.length} 个知识点 · 题库 ${BANK.length} 道小题 + ${CASES.length} 道大题 + ${GENS.length} 个随机模板`;
+  $('#kbBody').innerHTML = html || `<div class="empty">${t('kbNone')}</div>`;
+  $('#kbCount').textContent = t('kbCount', {a: shown, b: TOPICS.length, c: BANK.length, d: CASES.length, e: GENS.length});
 }
 
 // ---------- routing ----------
@@ -48,19 +80,21 @@ window.addEventListener('hashchange', route);
 document.addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
   const d = b.dataset;
+  if (d.lang) { setLang(d.lang); return; }
   if (d.preset) {
-    if (d.preset === 'all') S.topics = new Set(TOPICS.map(t => t.id));
+    if (d.preset === 'all') S.topics = new Set(TOPICS.map(x => x.id));
     else if (d.preset === 'none') S.topics = new Set();
     else if (d.preset === 'weak') S.topics = new Set(WEAK);
     else if (d.preset === 'mock') {
-      S.topics = new Set(TOPICS.map(t => t.id)); S.count = 15; S.cases = 3; S.mode = 'exam'; S.diff = 'mixed';
+      S.topics = new Set(TOPICS.map(x => x.id)); S.count = 15; S.caseOn = true; S.cases = 3; S.mode = 'exam'; S.diff = 'mixed';
       S.kinds = new Set(Object.keys(PTS)); renderSetup(); generate(); if (window.innerWidth <= 900) $('.paper').scrollIntoView({behavior: 'smooth'});
       return;
     }
-    else S.topics = new Set(TOPICS.filter(t => t.unit === d.preset).map(t => t.id));
+    else S.topics = new Set(TOPICS.filter(x => x.unit === d.preset).map(x => x.id));
     renderSetup(); saveSettings();
   }
   else if (d.count != null) { S.count = +d.count; renderSetup(); saveSettings(); }
+  else if (d.caseon) { S.caseOn = d.caseon === 'on'; renderSetup(); saveSettings(); }
   else if (d.cases != null) { S.cases = +d.cases; renderSetup(); saveSettings(); }
   else if (d.kind) { S.kinds.has(d.kind) ? S.kinds.delete(d.kind) : S.kinds.add(d.kind); renderSetup(); saveSettings(); }
   else if (d.diff) { S.diff = d.diff; renderSetup(); saveSettings(); }
@@ -79,10 +113,10 @@ document.addEventListener('click', e => {
   else if (d.drill) { S.topics = new Set([d.drill]); renderSetup(); location.hash = '#exam'; generate(); window.scrollTo(0, 0); }
   else if (d.act === 'again') { generate(); window.scrollTo(0, 0); }
   else if (d.act === 'retry') {
-    S.exam = S.exam.filter(q => (q.k === 'case' ? q.parts : [q]).some(p => { const s = unitScore(p); return s != null && s < 1; })).map(q => shuffleChoices(strip(q)));
-    renderExam('Retry · 错题重练'); setStatus(''); window.scrollTo(0, 0);
+    S.exam = S.exam.filter(q => (q.k === 'case' ? q.parts : [q]).some(p => { const s = unitScore(p); return s != null && s < 1; })).map(q => prep(q._src));
+    S.title = {key: 'tRetry'}; S.endedAt = null; renderExam(); setStatus(''); window.scrollTo(0, 0);
   }
-  else if (d.act === 'kb') { const t = units().map(u => u.q.t || u.parent.t)[0]?.[0]; location.hash = '#concepts'; setTimeout(() => el('kb-' + t)?.scrollIntoView(), 50); }
+  else if (d.act === 'kb') { const x = units().map(u => u.q.t || u.parent.t)[0]?.[0]; location.hash = '#concepts'; setTimeout(() => el('kb-' + x)?.scrollIntoView(), 50); }
 });
 $('#topicList').addEventListener('change', e => {
   const id = e.target.dataset.topic; if (!id) return;
@@ -95,18 +129,19 @@ $('#questions').addEventListener('change', updateAnswered);
 $('#kbSearch').addEventListener('input', renderKB);
 $('#mkPractice').addEventListener('click', () => {
   const list = store.get('mistakes', []); if (!list.length) return;
-  S.exam = R.shuffle(list).slice(0, 20).map(q => { const {ts, ...rest} = q; return shuffleChoices(rest); });
-  location.hash = '#exam'; renderExam('Mistakes Review · 错题本'); setStatus('全部答对的题会自动移出错题本。');
+  S.exam = R.shuffle(list).slice(0, 20).map(m => { const {ts, ...src} = m; return prep(src); });
+  S.title = {key: 'tMistakes'}; S.endedAt = null;
+  location.hash = '#exam'; renderExam(); setStatus(t('mkStatus'));
 });
 let clearArmed = false;
 $('#mkClear').addEventListener('click', e => {
-  if (!clearArmed) { clearArmed = true; e.target.textContent = '再点一次确认清空'; setTimeout(() => { clearArmed = false; e.target.textContent = '清空 Clear'; }, 3000); return; }
-  store.set('mistakes', []); clearArmed = false; e.target.textContent = '清空 Clear'; renderMistakes();
+  if (!clearArmed) { clearArmed = true; e.target.textContent = t('mkConfirm'); setTimeout(() => { clearArmed = false; e.target.textContent = t('mkClear'); }, 3000); return; }
+  store.set('mistakes', []); clearArmed = false; e.target.textContent = t('mkClear'); renderMistakes();
 });
 
 // ---------- start ----------
-renderSetup(); renderKB(); renderMistakes(); route();
-S.exam = buildExam(); renderExam(S.topics.size ? `Practice Exam · ${S.topics.size} topics` : 'Practice Exam');
+applyStatic(); renderSetup(); renderKB(); renderMistakes(); route();
+setTitle(); S.exam = buildExam(); renderExam();
 if (window.claude?.use) {
   window.claude.use('sample').then(s => { if (s) { S.sample = s; renderSetup(); } }).catch(() => {});
 }

@@ -26,6 +26,12 @@
   --good: #57c98a; --good-soft: #15301f; --bad: #ff8a80; --bad-soft: #3a1c1c; --warn: #e8b45a; --warn-soft: #382a10;
   color-scheme: dark; }
 * { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; }
+[hidden] { display: none !important; }
+.lang { display: flex; gap: 2px; border: 1px solid var(--line); border-radius: 999px; padding: 3px; }
+.lang button { border: 0; background: transparent; border-radius: 999px; padding: 4px 10px; font-size: 13px; font-weight: 500; color: var(--muted); }
+.lang button.on { background: var(--ink); color: var(--card); }
 body { background: var(--paper); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.55; }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--card); }
 button, input, select, textarea { font: inherit; color: inherit; }
@@ -153,7 +159,7 @@ textarea { font-family: var(--f-body); font-size: 14.5px; min-height: 92px; resi
 .kb-item .en { font-size: 13.5px; color: var(--muted); }
 .kb-item .zh { font-size: 14.5px; }
 .kb-item .trap { font-size: 13px; color: var(--bad); }
-.kb-item .trap::before { content: "易错 · "; font-weight: 600; }
+.kb-item .trap::before { content: attr(data-label); font-weight: 600; }
 mark { background: var(--mark); color: inherit; border-radius: 2px; }
 
 /* mistakes */
@@ -168,6 +174,8 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; }
   .paper-head, .q, .submit-bar, .results, .status { padding-left: 16px; padding-right: 16px; }
   .bar { grid-template-columns: minmax(0, 1fr) 70px 44px; }
   .tabs a small { display: none; }
+  .top { position: static; }
+  .brand span { display: none; }
 }
 .foot { color: var(--muted); font-size: 12.5px; padding-block: 0 40px; }
 /* case studies */
@@ -193,55 +201,59 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; }
 </style>
 
 <header class="top"><div class="wrap">
-  <div class="brand"><h1>Data <b>C8</b> Exam Lab</h1><span>刷题机 · Foundations of Data Science</span></div>
+  <div class="brand"><h1>Data <b>C8</b> Exam Lab</h1><span data-t="brandSub"></span></div>
   <nav class="tabs" aria-label="Sections">
-    <a href="#exam" data-view="exam">出题<small>Exam</small></a>
-    <a href="#concepts" data-view="concepts">知识点<small>Concepts</small></a>
-    <a href="#mistakes" data-view="mistakes">错题本<small>Mistakes</small></a>
+    <a href="#exam" data-view="exam" data-th="tabExam"></a>
+    <a href="#concepts" data-view="concepts" data-th="tabConcepts"></a>
+    <a href="#mistakes" data-view="mistakes" data-th="tabMistakes"></a>
   </nav>
+  <div class="lang" id="langGroup" role="group">
+    <button data-lang="zh" lang="zh-CN">中英</button><button data-lang="en" lang="en">English</button><button data-lang="es" lang="es">Español</button>
+  </div>
 </div></header>
 
 <main class="wrap">
   <section class="view" id="view-exam">
     <div class="exam-grid">
       <aside class="setup" aria-label="Exam settings">
-        <div class="label">知识点 Topics <em id="selCount"></em></div>
+        <div class="label"><span data-t="topics"></span> <em id="selCount"></em></div>
         <div class="quick">
-          <button class="pill mock" data-preset="mock">完整模拟考 Mock exam</button>
-          <button class="pill weak" data-preset="weak">我的弱项 · 检验/区间</button>
-          <button class="pill" data-preset="m1">期中一 MT1</button>
-          <button class="pill" data-preset="m2">期中二 MT2</button>
-          <button class="pill" data-preset="fin">期末新增</button>
-          <button class="pill" data-preset="all">全选 All</button>
-          <button class="pill" data-preset="none">清空 Clear</button>
+          <button class="pill mock" data-preset="mock" data-t="pMock"></button>
+          <button class="pill weak" data-preset="weak" data-t="pWeak"></button>
+          <button class="pill" data-preset="m1" data-t="pM1"></button>
+          <button class="pill" data-preset="m2" data-t="pM2"></button>
+          <button class="pill" data-preset="fin" data-t="pFin"></button>
+          <button class="pill" data-preset="all" data-t="pAll"></button>
+          <button class="pill" data-preset="none" data-t="pNone"></button>
         </div>
         <div id="topicList"></div>
-        <div class="label">小题数量 Questions</div>
+        <div class="label" data-t="countLabel"></div>
         <div class="seg" id="countSeg"></div>
-        <div class="label">大题 Case studies <em>约 20 分/道</em></div>
+        <div class="label"><span data-t="caseLabel"></span> <em data-t="caseHint"></em></div>
+        <div class="seg" id="caseToggle"></div>
         <div class="seg" id="caseSeg"></div>
-        <div class="label">题型 Types</div>
+        <div class="label" data-t="typesLabel"></div>
         <div class="seg" id="typeSeg"></div>
-        <div class="label">难度 Difficulty</div>
+        <div class="label" data-t="diffLabel"></div>
         <div class="seg" id="diffSeg"></div>
-        <div class="label">模式 Mode</div>
+        <div class="label" data-t="modeLabel"></div>
         <div class="seg" id="modeSeg"></div>
-        <div class="label">出题来源 Source</div>
+        <div class="label" data-t="srcLabel"></div>
         <div class="seg" id="srcSeg"></div>
         <p class="hint" id="srcHint"></p>
-        <button class="primary" id="genBtn">生成试卷 Generate</button>
+        <button class="primary" id="genBtn" data-t="genBtn"></button>
         <p class="hint" id="poolInfo"></p>
       </aside>
       <div class="paper">
         <div class="paper-head">
           <h2 id="paperTitle">Practice Exam</h2>
           <div class="meta" id="paperMeta"></div>
-          <div class="legend"><span><i class="c"></i>圆圈 = 单选 (one answer)</span><span><i class="s"></i>方框 = 多选 (select all that apply)</span><span>大题 = 背景故事 + 数据表 + 多个小问</span><span>题干英文同考试，解析中文</span></div>
+          <div class="legend"><span><i class="c"></i><span data-t="lgCircle"></span></span><span><i class="s"></i><span data-t="lgSquare"></span></span><span data-t="lgCase"></span><span data-t="lgLang"></span></div>
         </div>
         <div class="status" id="status" hidden></div>
         <div class="qs" id="questions"></div>
         <div class="submit-bar" id="submitBar" hidden>
-          <button class="primary" id="submitBtn">交卷 Submit</button>
+          <button class="primary" id="submitBtn"></button>
           <span class="hint" id="answeredInfo"></span>
         </div>
         <div class="results" id="results" hidden></div>
@@ -251,7 +263,7 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; }
 
   <section class="view" id="view-concepts" hidden>
     <div class="kb-tools">
-      <input id="kbSearch" type="search" placeholder="搜索概念 Search a term… (e.g. p-value, bootstrap, 置信区间)" aria-label="Search concepts">
+      <input id="kbSearch" type="search" data-tp="kbSearch" aria-label="Search concepts">
       <span class="hint" id="kbCount"></span>
     </div>
     <div id="kbBody"></div>
@@ -259,12 +271,12 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; }
 
   <section class="view" id="view-mistakes" hidden>
     <div class="mk-head">
-      <h2>错题本 Mistakes</h2>
-      <button class="primary" id="mkPractice">重练错题 Retry</button>
-      <button class="ghost" id="mkClear">清空 Clear</button>
+      <h2 data-t="mkTitle"></h2>
+      <button class="primary" id="mkPractice" data-t="mkRetry"></button>
+      <button class="ghost" id="mkClear" data-t="mkClear"></button>
     </div>
     <p class="hint" id="mkHint"></p>
     <div class="mk-list" id="mkList"></div>
   </section>
 </main>
-<footer class="wrap foot">非官方学习工具，与 UC Berkeley 及 Data 8 / Data C8 课程团队无关。题目均为原创练习题，风格参考历年公开考试。Unofficial study tool, not affiliated with UC Berkeley or the course staff.</footer>
+<footer class="wrap foot" data-t="foot"></footer>
