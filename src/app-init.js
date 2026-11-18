@@ -37,8 +37,9 @@ function renderSetup() {
   seg('#typeSeg', Object.keys(PTS).map(k => [k, LANG === 'zh' ? `${KIND[k].zh} ${KIND[k].en}` : KIND_L[k][LANG]]), S.kinds, 'kind');
   seg('#diffSeg', [['mixed', t('dMixed')], ['exam', t('dExam')], ['hard', t('dHard')]], S.diff, 'diff');
   seg('#modeSeg', [['practice', t('mPractice')], ['exam', t('mExam')]], S.mode, 'mode');
-  seg('#srcSeg', [['bank', t('sBank')], ['ai', t('sAI'), !S.sample]], S.src, 'src');
-  $('#srcHint').textContent = t(S.sample ? (S.src === 'ai' ? 'hintAI' : 'hintBank') : 'hintNoAI');
+  seg('#srcSeg', [['bank', t('sBank')], ['ai', t('sAI')]], S.src, 'src');
+  $('#srcHint').textContent = t(S.src === 'ai' ? 'hintAI' : 'hintBank');
+  renderAIPanel();
   const {statics, gens, cases} = poolFor(S.topics, S.kinds, S.diff);
   $('#poolInfo').textContent = S.topics.size ? t('pool', {a: statics.length, b: gens.length, c: S.caseOn ? cases.length : 0}) : '';
 }
@@ -81,6 +82,13 @@ document.addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
   const d = b.dataset;
   if (d.lang) { setLang(d.lang); return; }
+  if (d.aip) { S.ai.provider = d.aip; store.set('aiProvider', d.aip); renderAIPanel(); return; }
+  if (d.act === 'chatCopy') { copyText(S.chatPrompt).then(ok => { el('chatCopied').textContent = t(ok ? 'copied' : 'copyFail'); if (!ok) { const dt = document.querySelector('.chatflow details'); if (dt) dt.open = true; el('chatPromptBox')?.select(); } }); return; }
+  if (d.act === 'chatImport') {
+    try { importAIResult(parseLoose(el('chatIn').value)); window.scrollTo(0, 0); }
+    catch { el('chatErr').textContent = t('chatBad'); }
+    return;
+  }
   if (d.preset) {
     if (d.preset === 'all') S.topics = new Set(TOPICS.map(x => x.id));
     else if (d.preset === 'none') S.topics = new Set();

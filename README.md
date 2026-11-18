@@ -5,6 +5,10 @@ An unofficial practice tool for UC Berkeley Data C8 / Data 8, Foundations of Dat
 - Pick one or more topics, then generate an exam-style set: multiple choice, select-all, true/false, short answer, and Table-code fill-in questions.
 - Add case studies (大题): about 20 points each, with a background story, a data table, and parts (a), (b), (c) that combine several topics, like the long questions on finals. A one-click mock exam mixes 15 single questions with 3 case studies.
 - Switch the interface between 中英 (English questions, Chinese explanations), English, and Español. Everything is translated: questions, explanations, case studies, and concepts. Code stays in English.
+- Have AI write new questions and case studies, and grade short answers, with your own account or key:
+  - **Your Claude account:** open the Claude version of the page (linked on the site). It uses the Claude account you are signed in to.
+  - **ChatGPT or Claude website:** copy the prompt, paste it into chatgpt.com or claude.ai where you are signed in, then paste the JSON reply back.
+  - **Your own API key (Anthropic or OpenAI):** the page calls the API directly from your browser. The key stays in your browser and is billed to your API account, which is separate from a ChatGPT Plus or Claude Pro subscription.
 - Every question comes with an answer and an explanation. Short answers include grading key points.
 - A searchable concept list covers 23 topics in the course's lecture order.
 - A mistake book keeps track of missed questions, saved in your own browser.

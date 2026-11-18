@@ -178,6 +178,19 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; }
   .brand span { display: none; }
 }
 .foot { color: var(--muted); font-size: 12.5px; padding-block: 0 40px; }
+/* AI service */
+.aipanel { display: grid; gap: 10px; }
+.claude-link { display: grid; gap: 2px; text-decoration: none; color: var(--ink); border: 1px solid var(--accent); border-radius: 10px; padding: 10px 12px; background: var(--accent-soft); }
+.claude-link b { color: var(--accent); font-size: 14px; }
+.claude-link span { font-size: 12.5px; color: var(--muted); }
+.field { display: grid; gap: 4px; font-size: 12.5px; color: var(--muted); }
+.field input { border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; background: var(--paper); font-family: var(--f-mono); font-size: 13px; width: 100%; }
+.check { display: flex; gap: 8px; align-items: center; font-size: 13px; }
+.chatflow { display: grid; gap: 10px; width: 100%; color: var(--ink); }
+.chatflow ol { margin: 0; padding-left: 20px; display: grid; gap: 8px; }
+.chatflow a.ghost { text-decoration: none; color: var(--ink); display: inline-block; margin-left: 4px; }
+.chatflow textarea { min-height: 120px; font-family: var(--f-mono); font-size: 12.5px; }
+.chatflow details summary { cursor: pointer; color: var(--muted); font-size: 13px; }
 /* case studies */
 .pill.mock { border-color: var(--accent); color: var(--accent); font-weight: 600; }
 .tag.pts { background: transparent; border: 1px solid var(--line); color: var(--ink); font-variant-numeric: tabular-nums; }
@@ -243,6 +256,8 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; }
         <div class="label" data-t="srcLabel"></div>
         <div class="seg" id="srcSeg"></div>
         <p class="hint" id="srcHint"></p>
+        <div class="label" data-t="aiLabel"></div>
+        <div class="aipanel" id="aiPanel"></div>
         <button class="primary" id="genBtn" data-t="genBtn"></button>
         <p class="hint" id="poolInfo"></p>
       </aside>

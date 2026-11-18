@@ -86,9 +86,9 @@ function explainHTML(q, key) {
       <button class="ghost${q.self === 1 ? ' on' : ''}" data-self="${key}" data-v="1">${t('sgRight')}</button>
       <button class="ghost${q.self === 0.5 ? ' on' : ''}" data-self="${key}" data-v="0.5">${t('sgPart')}</button>
       <button class="ghost${q.self === 0 ? ' on' : ''}" data-self="${key}" data-v="0">${t('sgWrong')}</button>
-      ${S.sample ? `<button class="ghost" data-ai-grade="${key}">${t('aiGradeBtn')}</button>` : ''}</div>` : '';
+      ${aiReady() ? `<button class="ghost" data-ai-grade="${key}">${t(S.ai.provider === 'chat' ? 'gradeChat' : 'aiGradeBtn')}</button>` : ''}</div>` : '';
   const override = q.k === 'code' && q.res && q.res.score < 1 ? `<div class="selfgrade">${t('eqQ')}<button class="ghost" data-override="${key}">${t('markRight')}</button></div>` : '';
-  const ai = q.ai ? `<div class="ai-fb"><b>${t('aiFb')}</b>${rich(q.ai)}</div>` : '';
+  const ai = q.ai ? `<div class="ai-fb"><b>${t('aiFb')}</b>${q.ai}</div>` : '';
   return `<div class="explain"><div class="ans">${ans}</div>${model}${keys}<div>${rich(q.e || '')}</div>${self}${override}${ai}</div>`;
 }
 
@@ -216,35 +216,41 @@ function setTitle() {
   else S.title = {key: 'tPractice', vars: {n: S.topics.size}};
 }
 
+function importAIResult(res) {
+  const singles = (Array.isArray(res) ? res : res?.questions || []).map(x => validAI(x)).filter(Boolean);
+  const cases = (Array.isArray(res?.cases) ? res.cases : []).map(validCase).filter(Boolean);
+  if (!singles.length && !cases.length) throw {code: 'invalid_json'};
+  let note = t('aiNote', {a: singles.length, b: cases.length ? t('aiNoteCases', {n: cases.length}) : ''});
+  const fill = buildExam();
+  const exam = singles.map(prep);
+  if (singles.length < S.count) { const top = fill.filter(q => q.k !== 'case').slice(0, S.count - singles.length); exam.push(...top); if (top.length) note += t('aiTopS', {n: top.length}); }
+  exam.push(...cases.map(prep));
+  if (cases.length < nCases()) { const top = fill.filter(q => q.k === 'case').slice(0, nCases() - cases.length); exam.push(...top); if (top.length) note += t('aiTopC', {n: top.length}); }
+  setTitle(); S.endedAt = null; S.exam = exam; S.title.suffix = (S.title.suffix || '') + ' · AI';
+  renderExam(); setStatus(note);
+}
+
 async function generate() {
   if (!S.topics.size) { setStatus(t('needTopic'), true); return; }
   if (!S.kinds.size && !nCases()) { setStatus(t('needType'), true); return; }
   saveSettings(); setTitle(); S.endedAt = null;
-  if (S.src === 'ai' && S.sample) {
+  if (S.src === 'ai') {
+    const prompt = aiPrompt();
+    if (S.ai.provider === 'chat') { showChatFlow(prompt); return; }
+    if (!aiReady()) { setStatus(t(S.ai.provider === 'app' ? 'appWait' : 'needKey'), true); return; }
     S.aiCtl?.abort(); const ctl = S.aiCtl = new AbortController();
     $('#genBtn').disabled = true;
-    setStatus(`${t('aiWorking', {n: S.count, c: nCases() ? t('aiWorkingCases', {n: nCases()}) : ''})} <button class="ghost" id="stopAI">${t('stop')}</button>`);
+    setStatus(`${t('aiWorking', {n: S.count, c: nCases() ? t('aiWorkingCases', {n: nCases()}) : ''})} <span class="hint" id="aiProg"></span> <button class="ghost" id="stopAI">${t('stop')}</button>`);
     $('#stopAI').onclick = () => ctl.abort();
     try {
-      const res = await S.sample.json(aiPrompt(), {signal: ctl.signal, cache: false, modelTier: nCases() ? 'complex' : 'default'});
-      const singles = (Array.isArray(res) ? res : res?.questions || []).map(x => validAI(x)).filter(Boolean);
-      const cases = (res?.cases || []).map(validCase).filter(Boolean);
-      if (!singles.length && !cases.length) throw {code: 'invalid_json'};
-      let note = t('aiNote', {a: singles.length, b: cases.length ? t('aiNoteCases', {n: cases.length}) : ''});
-      const fill = buildExam();
-      const exam = [...singles.map(prep)];
-      if (singles.length < S.count) { const top = fill.filter(q => q.k !== 'case').slice(0, S.count - singles.length); exam.push(...top); note += t('aiTopS', {n: top.length}); }
-      exam.push(...cases.map(prep));
-      if (cases.length < nCases()) { const top = fill.filter(q => q.k === 'case').slice(0, nCases() - cases.length); exam.push(...top); if (top.length) note += t('aiTopC', {n: top.length}); }
-      S.exam = exam; S.title.suffix = (S.title.suffix || '') + ' · Claude';
-      renderExam(); setStatus(note);
+      const res = await aiJSON(prompt, {kind: 'gen', signal: ctl.signal, onProgress: n => { const p = $('#aiProg'); if (p) p.textContent = t('aiProgress', {n: n.toLocaleString('en-US')}); }});
+      importAIResult(res);
     } catch (e) {
       if (e?.code === 'cancelled') { setStatus(t('stopped')); }
       else {
-        const why = t({not_granted: 'wNotGranted', rate_limited: 'wRate', invalid_json: 'wJson'}[e?.code] || 'wConn');
         S.exam = buildExam(); renderExam();
-        setStatus(t('aiFail', {w: why}), true);
-        if (e?.code === 'not_granted') { S.sample = null; S.src = 'bank'; renderSetup(); }
+        setStatus(t('aiFail', {w: aiErrMsg(e)}), true);
+        if (e?.code === 'not_granted') { S.sample = null; renderSetup(); }
       }
     } finally { $('#genBtn').disabled = false; }
     return;
@@ -256,24 +262,32 @@ async function generate() {
   if (lack.length) setStatus(t('short', {x: lack.join(LANG === 'zh' ? '，' : '; ')}));
 }
 
-async function aiGrade(key) {
-  const q = getQ(key); const ans = (el(`q${key}t`).value || '').trim();
-  const box = el('ex' + key);
-  if (!ans) { q.ai = t('aiNoAns'); box.innerHTML = explainHTML(q, key); return; }
-  q.ai = t('aiGrading'); box.innerHTML = explainHTML(q, key);
+function gradePrompt(q, key, ans) {
   const parent = String(key).includes('-') ? S.exam[+String(key).split('-')[0]] : null;
-  try {
-    const r = await S.sample.json(`You are a Data 8 (UC Berkeley) TA grading a short-answer exam question. Be fair but strict about the course's precise wording (e.g. "fail to reject" not "accept"; confidence is about the process; null must be a chance model).
+  return `You are a Data 8 (UC Berkeley) TA grading a short-answer exam question. Be fair but strict about the course's precise wording (e.g. "fail to reject" not "accept"; confidence is about the process; null must be a chance model).
 ${parent ? 'Background: ' + parent.bg + '\n' : ''}Question: ${q.q}${q.code ? '\nCode:\n' + q.code : ''}
 Model answer: ${q.a}
 Grading key points: ${(q.p || []).join(' | ')}
 Student answer: ${ans}
-Reply with ONLY JSON: {"score": 0 | 0.5 | 1, "feedback": "2-4 sentences in ${AI_LANG[LANG].fb} saying what was right, what was missing or wrong, and how to phrase it on the exam"}`, {modelTier: 'default', cache: false});
+Reply with ONLY a JSON object: {"score": 0 | 0.5 | 1, "feedback": "2-4 sentences in ${AI_LANG[LANG].fb} saying what was right, what was missing or wrong, and how to phrase it on the exam"}`;
+}
+async function aiGrade(key) {
+  const q = getQ(key); const ans = (el(`q${key}t`).value || '').trim();
+  const box = el('ex' + key);
+  if (!ans) { q.ai = t('aiNoAns'); box.innerHTML = explainHTML(q, key); return; }
+  if (S.ai.provider === 'chat') {
+    const ok = await copyText(gradePrompt(q, key, ans));
+    q.ai = t(ok ? 'gradeChatNote' : 'copyFail') + ' <a href="https://chatgpt.com/" target="_blank" rel="noopener">ChatGPT ↗</a> · <a href="https://claude.ai/new" target="_blank" rel="noopener">Claude ↗</a>';
+    box.innerHTML = explainHTML(q, key); return;
+  }
+  q.ai = t('aiGrading'); box.innerHTML = explainHTML(q, key);
+  try {
+    const r = await aiJSON(gradePrompt(q, key, ans), {kind: 'grade'});
     const s = [0, 0.5, 1].includes(+r?.score) ? +r.score : null;
-    q.ai = `${s == null ? '' : t('aiSuggest', {a: s * ptsOf(q), b: ptsOf(q)})}${r?.feedback || ''}`;
+    q.ai = esc(`${s == null ? '' : t('aiSuggest', {a: s * ptsOf(q), b: ptsOf(q)})}${r?.feedback || ''}`);
     if (s != null) { q.self = s; paintVerdict(key); afterScore(key); }
   } catch (e) {
-    q.ai = t(e?.code === 'not_granted' ? 'aiNoPerm' : 'aiGradeFail');
+    q.ai = esc(e?.code === 'not_granted' ? t('aiNoPerm') : t('aiGradeErr', {w: aiErrMsg(e)}));
   }
   box.innerHTML = explainHTML(q, key);
 }

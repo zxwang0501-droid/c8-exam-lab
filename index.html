@@ -185,6 +185,19 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; }
   .brand span { display: none; }
 }
 .foot { color: var(--muted); font-size: 12.5px; padding-block: 0 40px; }
+/* AI service */
+.aipanel { display: grid; gap: 10px; }
+.claude-link { display: grid; gap: 2px; text-decoration: none; color: var(--ink); border: 1px solid var(--accent); border-radius: 10px; padding: 10px 12px; background: var(--accent-soft); }
+.claude-link b { color: var(--accent); font-size: 14px; }
+.claude-link span { font-size: 12.5px; color: var(--muted); }
+.field { display: grid; gap: 4px; font-size: 12.5px; color: var(--muted); }
+.field input { border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; background: var(--paper); font-family: var(--f-mono); font-size: 13px; width: 100%; }
+.check { display: flex; gap: 8px; align-items: center; font-size: 13px; }
+.chatflow { display: grid; gap: 10px; width: 100%; color: var(--ink); }
+.chatflow ol { margin: 0; padding-left: 20px; display: grid; gap: 8px; }
+.chatflow a.ghost { text-decoration: none; color: var(--ink); display: inline-block; margin-left: 4px; }
+.chatflow textarea { min-height: 120px; font-family: var(--f-mono); font-size: 12.5px; }
+.chatflow details summary { cursor: pointer; color: var(--muted); font-size: 13px; }
 /* case studies */
 .pill.mock { border-color: var(--accent); color: var(--accent); font-weight: 600; }
 .tag.pts { background: transparent; border: 1px solid var(--line); color: var(--ink); font-variant-numeric: tabular-nums; }
@@ -250,6 +263,8 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; }
         <div class="label" data-t="srcLabel"></div>
         <div class="seg" id="srcSeg"></div>
         <p class="hint" id="srcHint"></p>
+        <div class="label" data-t="aiLabel"></div>
+        <div class="aipanel" id="aiPanel"></div>
         <button class="primary" id="genBtn" data-t="genBtn"></button>
         <p class="hint" id="poolInfo"></p>
       </aside>
@@ -530,8 +545,8 @@ const UI = {
   typesLabel:{zh:'题型 Types', en:'Question types', es:'Tipos de pregunta'},
   diffLabel:{zh:'难度 Difficulty', en:'Difficulty', es:'Dificultad'}, dMixed:{zh:'混合 Mixed', en:'Mixed', es:'Mixta'}, dExam:{zh:'考试难度 Exam', en:'Exam level', es:'Nivel examen'}, dHard:{zh:'只要难题 Hard', en:'Hard only', es:'Solo difíciles'},
   modeLabel:{zh:'模式 Mode', en:'Mode', es:'Modo'}, mPractice:{zh:'练习 Practice', en:'Practice', es:'Práctica'}, mExam:{zh:'考试 Exam', en:'Exam', es:'Examen'},
-  srcLabel:{zh:'出题来源 Source', en:'Source', es:'Fuente'}, sBank:{zh:'题库 + 随机模板', en:'Bank + random templates', es:'Banco + plantillas'}, sAI:{zh:'Claude 出新题', en:'New questions by Claude', es:'Preguntas nuevas de Claude'},
-  hintAI:{zh:'由 Claude 按所选知识点现场出题，大题也会现写（会用到你自己的 Claude 额度，第一次会请你授权）。', en:'Claude writes new questions, including case studies, for the chosen topics. This uses your own Claude usage and asks permission the first time.', es:'Claude escribe preguntas nuevas, incluidos casos de estudio, para los temas elegidos. Usa tu propio uso de Claude y pide permiso la primera vez.'},
+  srcLabel:{zh:'出题来源 Source', en:'Source', es:'Fuente'}, sBank:{zh:'题库 + 随机模板', en:'Bank + random templates', es:'Banco + plantillas'}, sAI:{zh:'AI 现场出新题', en:'New questions by AI', es:'Preguntas nuevas con IA'},
+  hintAI:{zh:'由你选择的 AI 服务按所选知识点现场出题，大题也会现写。用的是你自己的账号或 key。', en:'The AI service you choose below writes new questions, including case studies, for the chosen topics, using your own account or key.', es:'El servicio de IA que elijas abajo escribe preguntas nuevas, incluidos casos, para los temas elegidos, con tu propia cuenta o clave.'},
   hintBank:{zh:'题库题都有标准答案和中文解析；随机模板每次生成新数字。', en:'Bank questions come with answers and explanations; random templates make new numbers every time.', es:'Las preguntas del banco traen respuesta y explicación; las plantillas generan números nuevos cada vez.'},
   hintNoAI:{zh:'题库题都有标准答案和中文解析。在 Claude 里打开本页时，还可以让 Claude 现场出新题（包括大题）、批改简答题。', en:'Bank questions come with answers and explanations. When this page is opened in Claude, Claude can also write new questions (including case studies) and grade short answers.', es:'Las preguntas del banco traen respuesta y explicación. Si abres esta página en Claude, Claude también puede escribir preguntas nuevas (incluidos casos) y calificar respuestas cortas.'},
   genBtn:{zh:'生成试卷 Generate', en:'Generate exam', es:'Generar examen'},
@@ -542,7 +557,7 @@ const UI = {
   metaExam:{zh:'考试模式：交卷后统一批改', en:'Exam mode: graded when you submit', es:'Modo examen: se califica al entregar'}, metaPractice:{zh:'练习模式：每题可单独检查', en:'Practice mode: check each question', es:'Modo práctica: revisa cada pregunta'},
   empty:{zh:'当前组合没有可用的题目。换几个知识点或题型试试。<br>No questions match. Try other topics or types.', en:'No questions match. Try other topics or question types.', es:'No hay preguntas para esta selección. Prueba otros temas o tipos.'},
   submit:{zh:'交卷 Submit', en:'Submit', es:'Entregar'}, gradeAll:{zh:'全部批改 Grade all', en:'Grade all', es:'Calificar todo'}, answered:{zh:'已作答 {a} / {b}', en:'Answered {a} / {b}', es:'Respondidas {a} / {b}'},
-  check:{zh:'检查 Check', en:'Check', es:'Revisar'}, tagRand:{zh:'随机数值', en:'random numbers', es:'números aleatorios'}, tagAI:{zh:'Claude 生成', en:'by Claude', es:'de Claude'},
+  check:{zh:'检查 Check', en:'Check', es:'Revisar'}, tagRand:{zh:'随机数值', en:'random numbers', es:'números aleatorios'}, tagAI:{zh:'AI 生成', en:'by AI', es:'de IA'},
   tagCase:{zh:'大题 · Case study', en:'Case study', es:'Caso de estudio'}, bgHint:{zh:'中文背景提示', en:'', es:''}, rowsOmitted:{zh:'… ({n} rows omitted)', en:'… ({n} rows omitted)', es:'… ({n} filas omitidas)'},
   phText:{zh:'用英文或中文作答都可以。Answer in English or Chinese.', en:'Write your answer.', es:'Escribe tu respuesta.'}, phBlank:{zh:'code for blank {l}', en:'code for blank {l}', es:'código para el espacio {l}'}, phOut:{zh:'value', en:'value', es:'valor'},
   vRight:{zh:'✓ 正确 Correct', en:'✓ Correct', es:'✓ Correcto'}, vPart:{zh:'◐ 部分正确 Partial', en:'◐ Partly correct', es:'◐ Parcialmente correcto'}, vWrong:{zh:'✗ 错误 Incorrect', en:'✗ Incorrect', es:'✗ Incorrecto'},
@@ -550,7 +565,7 @@ const UI = {
   ansIs:{zh:'正确答案：', en:'Answer: ', es:'Respuesta: '}, ansRef:{zh:'参考答案：', en:'Answer: ', es:'Respuesta: '}, keyPts:{zh:'得分要点', en:'Key points', es:'Puntos clave'}, model:{zh:'参考答案 Model answer', en:'Model answer', es:'Respuesta modelo'},
   selfGrade:{zh:'自评 Self-grade:', en:'Self-grade:', es:'Autoevaluación:'}, sgRight:{zh:'答对了', en:'Correct', es:'Correcta'}, sgPart:{zh:'部分', en:'Partly', es:'Parcial'}, sgWrong:{zh:'没答对', en:'Wrong', es:'Incorrecta'},
   aiGradeBtn:{zh:'让 Claude 批改', en:'Ask Claude to grade', es:'Que Claude califique'}, eqQ:{zh:'写法不同但等价？', en:'Different but equivalent?', es:'¿Distinta pero equivalente?'}, markRight:{zh:'算我对 Mark correct', en:'Mark correct', es:'Marcar como correcta'},
-  aiFb:{zh:'Claude 批改：', en:'Claude\'s feedback: ', es:'Comentario de Claude: '}, T:{zh:'True', en:'True', es:'Verdadero'}, F:{zh:'False', en:'False', es:'Falso'},
+  aiFb:{zh:'AI 批改：', en:'AI feedback: ', es:'Comentario de la IA: '}, T:{zh:'True', en:'True', es:'Verdadero'}, F:{zh:'False', en:'False', es:'Falso'},
   partly:{zh:'（部分已批改）', en:' (partly graded)', es:' (calificado en parte)'},
   resLine:{zh:'分 points · {pct}% · 用时 {m} 分 {s} 秒', en:'points · {pct}% · time {m}m {s}s', es:'puntos · {pct}% · tiempo {m} min {s} s'},
   resPending:{zh:' · {n} 道简答待自评（未计入）', en:' · {n} short answers not graded yet (not counted)', es:' · {n} respuestas cortas sin calificar (no cuentan)'},
@@ -564,11 +579,11 @@ const UI = {
   kbCount:{zh:'{a} 个概念 · {b} 个知识点 · 题库 {c} 道小题 + {d} 道大题 + {e} 个随机模板', en:'{a} concepts · {b} topics · {c} questions + {d} case studies + {e} random templates', es:'{a} conceptos · {b} temas · {c} preguntas + {d} casos + {e} plantillas'},
   kbPractice:{zh:'练这个知识点 Practice', en:'Practice this topic', es:'Practicar este tema'}, kbTrap:{zh:'易错 · ', en:'Common mistake · ', es:'Error común · '}, kbNone:{zh:'没有找到匹配的概念。No matching concepts.', en:'No matching concepts.', es:'No hay conceptos que coincidan.'},
   needTopic:{zh:'先在左边至少选一个知识点。Pick at least one topic.', en:'Pick at least one topic.', es:'Elige al menos un tema.'}, needType:{zh:'至少选一种题型或至少 1 道大题。', en:'Pick at least one question type or include case studies.', es:'Elige al menos un tipo de pregunta o incluye casos.'},
-  aiWorking:{zh:'Claude 正在出题（{n} 道小题{c}），通常需要 1–3 分钟…', en:'Claude is writing {n} questions{c}. This usually takes 1–3 minutes…', es:'Claude está escribiendo {n} preguntas{c}. Suele tardar 1–3 minutos…'},
+  aiWorking:{zh:'AI 正在出题（{n} 道小题{c}），通常需要 1–3 分钟…', en:'The AI is writing {n} questions{c}. This usually takes 1–3 minutes…', es:'La IA está escribiendo {n} preguntas{c}. Suele tardar 1–3 minutos…'},
   aiWorkingCases:{zh:' + {n} 道大题', en:' and {n} case studies', es:' y {n} casos'}, stop:{zh:'停止 Stop', en:'Stop', es:'Detener'}, stopped:{zh:'已停止。Stopped.', en:'Stopped.', es:'Detenido.'},
-  aiNote:{zh:'Claude 生成了 {a} 道小题{b}。AI 题目偶尔会有瑕疵，觉得答案不对可以对照“知识点”页核实。', en:'Claude wrote {a} questions{b}. AI questions can have mistakes; check the Concepts page if an answer looks wrong.', es:'Claude escribió {a} preguntas{b}. Las preguntas de IA pueden tener errores; revisa Conceptos si una respuesta parece incorrecta.'},
+  aiNote:{zh:'AI 生成了 {a} 道小题{b}。AI 题目偶尔会有瑕疵，觉得答案不对可以对照“知识点”页核实。', en:'The AI wrote {a} questions{b}. AI questions can have mistakes; check the Concepts page if an answer looks wrong.', es:'La IA escribió {a} preguntas{b}. Las preguntas de IA pueden tener errores; revisa Conceptos si una respuesta parece incorrecta.'},
   aiNoteCases:{zh:' 和 {n} 道大题', en:' and {n} case studies', es:' y {n} casos'}, aiTopS:{zh:' 小题从题库补了 {n} 道。', en:' Added {n} bank questions.', es:' Se añadieron {n} preguntas del banco.'}, aiTopC:{zh:' 大题从题库补了 {n} 道。', en:' Added {n} bank case studies.', es:' Se añadieron {n} casos del banco.'},
-  aiFail:{zh:'Claude 出题失败（{w}），已改用题库出题。', en:'Claude could not write the questions ({w}), so the bank was used instead.', es:'Claude no pudo escribir las preguntas ({w}); se usó el banco.'},
+  aiFail:{zh:'AI 出题失败（{w}），已改用题库出题。', en:'The AI could not write the questions ({w}), so the bank was used instead.', es:'La IA no pudo escribir las preguntas ({w}); se usó el banco.'},
   wNotGranted:{zh:'你没有允许这个页面使用 Claude', en:'this page was not allowed to use Claude', es:'no se permitió que esta página usara Claude'}, wRate:{zh:'调用太频繁或额度已用完，稍后再试', en:'too many requests or usage limit reached; try later', es:'demasiadas solicitudes o límite alcanzado; inténtalo más tarde'},
   wJson:{zh:'Claude 返回的格式无法解析', en:'the reply could not be read', es:'no se pudo leer la respuesta'}, wConn:{zh:'连接出了问题', en:'connection problem', es:'problema de conexión'},
   short:{zh:'这个组合{x}。多选几个知识点或题型、把难度设为“混合”，或改用 Claude 出题，可以得到更多。', en:'For this selection, {x}. Pick more topics or types, set difficulty to Mixed, or use Claude to get more.', es:'Para esta selección, {x}. Elige más temas o tipos, usa dificultad Mixta o usa Claude para obtener más.'},
@@ -581,6 +596,31 @@ const UI = {
   tfTitle:{zh:'True or False', en:'True or False', es:'Verdadero o falso'}, tfBg:{zh:'For each statement below, choose True or False. Each part is worth 2 points.', en:'For each statement below, choose True or False. Each part is worth 2 points.', es:'Para cada afirmación, elige Verdadero o Falso. Cada parte vale 2 puntos.'},
   foot:{zh:'非官方学习工具，与 UC Berkeley 及 Data 8 / Data C8 课程团队无关。题目均为原创练习题，风格参考历年公开考试。Unofficial study tool, not affiliated with UC Berkeley or the course staff.', en:'Unofficial study tool, not affiliated with UC Berkeley or the Data 8 / Data C8 course staff. All questions are original practice questions in the style of past public exams.', es:'Herramienta de estudio no oficial, sin relación con UC Berkeley ni con el equipo de Data 8 / Data C8. Todas las preguntas son originales, al estilo de exámenes públicos anteriores.'},
   langLabel:{zh:'界面语言', en:'Language', es:'Idioma'},
+  aiLabel:{zh:'AI 服务（出题和批改）', en:'AI service (writing and grading)', es:'Servicio de IA (crear y calificar)'},
+  pvApp:{zh:'我的 Claude 账号', en:'My Claude account', es:'Mi cuenta de Claude'}, pvChat:{zh:'ChatGPT / Claude 网页（复制粘贴）', en:'ChatGPT / Claude website (copy & paste)', es:'Web de ChatGPT / Claude (copiar y pegar)'},
+  pvAnthropic:{zh:'Anthropic API key', en:'Anthropic API key', es:'Clave API de Anthropic'}, pvOpenAI:{zh:'OpenAI API key', en:'OpenAI API key', es:'Clave API de OpenAI'},
+  openInClaude:{zh:'用我的 Claude 账号打开本页 ↗', en:'Open this page with my Claude account ↗', es:'Abrir esta página con mi cuenta de Claude ↗'},
+  openInClaudeHint:{zh:'Claude 版本直接用你登录的 Claude 账号出题和批改，不需要 API key。', en:'The Claude version uses the Claude account you are signed in to for writing and grading, with no API key.', es:'La versión de Claude usa la cuenta de Claude con la que iniciaste sesión para crear y calificar, sin clave API.'},
+  appReady:{zh:'已连接：出题和批改会使用你当前登录的 Claude 账号（第一次会请你授权）。', en:'Connected: writing and grading use the Claude account you are signed in to (it asks permission the first time).', es:'Conectado: se usa la cuenta de Claude con la que iniciaste sesión (pide permiso la primera vez).'},
+  appWait:{zh:'Claude 账号暂不可用（可能还在连接，或你没有授权）。可以改用“ChatGPT / Claude 网页”。', en:'Your Claude account is not available yet (still connecting, or permission was not given). You can use the ChatGPT / Claude website option instead.', es:'Tu cuenta de Claude no está disponible aún (conectando, o no se dio permiso). Puedes usar la opción de la web de ChatGPT / Claude.'},
+  chatNote:{zh:'使用你已经登录的 ChatGPT 或 Claude 网页：点“生成试卷”后复制提示词，粘贴到 ChatGPT 或 Claude，再把它回复的 JSON 粘贴回来。批改简答题时会复制批改提示词。', en:'Use the ChatGPT or Claude website you are already signed in to: after Generate, copy the prompt, paste it there, then paste the JSON reply back here. Grading a short answer copies a grading prompt.', es:'Usa la web de ChatGPT o Claude donde ya iniciaste sesión: tras Generar, copia las instrucciones, pégalas allí y pega aquí la respuesta JSON. Calificar una respuesta corta copia unas instrucciones de calificación.'},
+  modelLabel:{zh:'模型 Model', en:'Model', es:'Modelo'}, remember:{zh:'在这台设备上记住 key', en:'Remember the key on this device', es:'Recordar la clave en este dispositivo'},
+  keyNoteA:{zh:'key 只保存在你的浏览器里，只会直接发给 api.anthropic.com。费用记在你的 Anthropic API 账户，和 Claude Pro 订阅是分开的。', en:'The key stays in your browser and is sent only to api.anthropic.com. Usage is billed to your Anthropic API account, separate from a Claude Pro subscription.', es:'La clave se queda en tu navegador y solo se envía a api.anthropic.com. El uso se cobra en tu cuenta de la API de Anthropic, aparte de una suscripción Claude Pro.'},
+  keyNoteO:{zh:'key 只保存在你的浏览器里，只会直接发给 api.openai.com。费用记在你的 OpenAI API 账户，和 ChatGPT Plus 订阅是分开的。模型名请填你账户能用的。', en:'The key stays in your browser and is sent only to api.openai.com. Usage is billed to your OpenAI API account, separate from ChatGPT Plus. Use a model name your account can access.', es:'La clave se queda en tu navegador y solo se envía a api.openai.com. El uso se cobra en tu cuenta de la API de OpenAI, aparte de ChatGPT Plus. Usa un modelo disponible en tu cuenta.'},
+  needKey:{zh:'请先在左侧“AI 服务”里填写 API key。', en:'Enter an API key under "AI service" first.', es:'Primero escribe una clave API en "Servicio de IA".'},
+  aiProgress:{zh:'已收到 {n} 字', en:'{n} characters received', es:'{n} caracteres recibidos'},
+  eKey:{zh:'API key 无效或没有权限', en:'the API key is invalid or not allowed', es:'la clave API no es válida o no tiene permiso'}, eNet:{zh:'连不上 AI 服务（检查网络）', en:'could not reach the AI service (check your connection)', es:'no se pudo conectar con el servicio de IA (revisa tu conexión)'},
+  eHttp:{zh:'服务返回错误 {s}：{m}', en:'the service returned error {s}: {m}', es:'el servicio devolvió el error {s}: {m}'}, eRefused:{zh:'AI 拒绝了这次请求', en:'the AI declined this request', es:'la IA rechazó esta solicitud'},
+  eTrunc:{zh:'回复太长被截断了，请减少题量或大题数', en:'the reply was cut off for length; ask for fewer questions or case studies', es:'la respuesta se cortó por largo; pide menos preguntas o casos'},
+  aiGradeErr:{zh:'批改失败（{w}）。可以先用上面的按钮自评。', en:'Grading failed ({w}). You can self-grade with the buttons above.', es:'La calificación falló ({w}). Puedes autoevaluarte con los botones de arriba.'},
+  chatTitle:{zh:'用你的 ChatGPT / Claude 网页出题', en:'Write questions with your ChatGPT / Claude website', es:'Crear preguntas con tu web de ChatGPT / Claude'},
+  chatCopy:{zh:'① 复制提示词', en:'1. Copy the prompt', es:'1. Copiar instrucciones'}, chatOpen:{zh:'② 打开并粘贴（用你自己的账号登录）：', en:'2. Open one and paste (signed in with your own account):', es:'2. Abre uno y pega (con tu propia cuenta):'},
+  chatPasteStep:{zh:'③ 等它回复完，把整段回复（JSON）粘贴到下面，点“导入题目”。', en:'3. When it finishes, paste the whole reply (JSON) below and click Import.', es:'3. Cuando termine, pega toda la respuesta (JSON) abajo y haz clic en Importar.'},
+  chatShow:{zh:'查看提示词全文', en:'Show the full prompt', es:'Ver las instrucciones completas'}, chatPastePh:{zh:'把 ChatGPT / Claude 的回复粘贴在这里…', en:'Paste the ChatGPT / Claude reply here…', es:'Pega aquí la respuesta de ChatGPT / Claude…'},
+  chatImport:{zh:'导入题目 Import', en:'Import questions', es:'Importar preguntas'}, chatBad:{zh:'没能读出题目 JSON。请把 AI 的完整回复粘贴进来再试。', en:'Could not read question JSON. Paste the complete reply and try again.', es:'No se pudo leer el JSON. Pega la respuesta completa e inténtalo otra vez.'},
+  copied:{zh:'已复制', en:'Copied', es:'Copiado'}, copyFail:{zh:'无法自动复制，请在下面手动全选复制。', en:'Could not copy automatically; select and copy the text manually.', es:'No se pudo copiar; selecciona y copia el texto a mano.'},
+  gradeChat:{zh:'复制批改提示词', en:'Copy grading prompt', es:'Copiar instrucciones de calificación'},
+  gradeChatNote:{zh:'已复制批改提示词。粘贴到 ChatGPT 或 Claude 看批改意见，再用上面的按钮自评：', en:'Grading prompt copied. Paste it into ChatGPT or Claude to read the feedback, then self-grade with the buttons above:', es:'Instrucciones copiadas. Pégalas en ChatGPT o Claude para leer el comentario y luego autoevalúate con los botones de arriba:'},
 };
 const t = (key, vars) => { let s = (UI[key] || {})[LANG] ?? (UI[key] || {}).en ?? key; if (vars) for (const [k, v] of Object.entries(vars)) s = s.split('{' + k + '}').join(v); return s; };
 const topicName = id => { const tp = TOPICS.find(x => x.id === id); return LANG === 'es' ? TOPIC_ES[id] : tp.en; };
@@ -3297,6 +3337,151 @@ function isAnswered(q, key) {
   return !!document.querySelector(`input[name="q${key}"]:checked`);
 }
 
+// AI services for writing and grading questions.
+//   app       - the viewer's own Claude account, when this page is opened as a Claude artifact
+//   chat      - the viewer's own ChatGPT or Claude website login: copy the prompt over, paste the JSON reply back
+//   anthropic - the viewer's Anthropic API key, called from this browser (raw HTTP; the page has no build step)
+//   openai    - the viewer's OpenAI API key, called from this browser
+// Keys stay in this browser: in memory, or in localStorage only if the viewer ticks "remember".
+const ART_URL = 'https://claude.ai/artifact/KVZa8r6iJx1qoGPswrFtbn';
+const IN_CLAUDE = !!window.claude;              // inside a Claude artifact, other hosts are blocked, so API keys cannot be used
+const AI_PROVIDERS = IN_CLAUDE ? ['app', 'chat'] : ['chat', 'anthropic', 'openai'];
+const readKey = p => { try { return localStorage.getItem('c8lab:key:' + p) || ''; } catch { return ''; } };
+const writeKey = (p, v) => { try { v ? localStorage.setItem('c8lab:key:' + p, v) : localStorage.removeItem('c8lab:key:' + p); } catch {} };
+S.ai = {
+  provider: AI_PROVIDERS.includes(store.get('aiProvider')) ? store.get('aiProvider') : AI_PROVIDERS[0],
+  remember: store.get('aiRemember', false),
+  keys: {anthropic: readKey('anthropic'), openai: readKey('openai')},
+  models: {anthropic: store.get('aiModel:anthropic', 'claude-opus-5-5'), openai: store.get('aiModel:openai', 'gpt-5')},
+};
+const aiReady = () => S.ai.provider === 'app' ? !!S.sample : S.ai.provider === 'chat' ? true : !!S.ai.keys[S.ai.provider];
+
+// Reads the first JSON value out of a reply, tolerating code fences or a sentence around it.
+function parseLoose(text) {
+  const s = String(text || '').trim();
+  const tries = [s];
+  const fence = s.match(/```(?:json)?\s*([\s\S]*?)```/i); if (fence) tries.push(fence[1]);
+  const i = Math.min(...['{', '['].map(c => s.indexOf(c)).filter(x => x >= 0)); const j = Math.max(s.lastIndexOf('}'), s.lastIndexOf(']'));
+  if (isFinite(i) && j > i) tries.push(s.slice(i, j + 1));
+  for (const x of tries) { try { return JSON.parse(x); } catch {} }
+  throw {code: 'invalid_json', text: s};
+}
+
+// Claude Messages API over HTTP, streamed so long case-study replies do not time out.
+const FALLBACK_MODELS = ['claude-opus-5-5', 'claude-opus-5', 'claude-sonnet-5-5', 'claude-fable-5-2', 'claude-fable-5-1'];
+async function callAnthropic(prompt, kind, signal, onProgress) {
+  const model = (S.ai.models.anthropic || '').trim() || 'claude-opus-5-5';
+  const headers = {'content-type': 'application/json', 'x-api-key': S.ai.keys.anthropic, 'anthropic-version': '2026-10-21', 'anthropic-dangerous-direct-browser-access': 'true'};
+  const body = {model, max_tokens: kind === 'grade' ? 8000 : 64000, stream: true, messages: [{role: 'user', content: prompt}]};
+  if (/^claude-(opus-5|sonnet-5-5|haiku-5-5|fable-5|mythos-5)/.test(model)) body.output_config = {effort: kind === 'grade' ? 'low' : 'high'};
+  if (FALLBACK_MODELS.includes(model)) { headers['anthropic-beta'] = 'server-side-fallback-2026-07-01'; body.fallbacks = 'default'; }
+  let res;
+  try { res = await fetch('https://api.anthropic.com/v1/messages', {method: 'POST', headers, body: JSON.stringify(body), signal}); }
+  catch (e) { throw e?.name === 'AbortError' ? {code: 'cancelled'} : {code: 'network'}; }
+  if (!res.ok) { const j = await res.json().catch(() => null); throw {code: 'http', status: res.status, message: j?.error?.message || res.statusText}; }
+  const reader = res.body.getReader(), dec = new TextDecoder();
+  let buf = '', text = '', stop = null;
+  try {
+    for (;;) {
+      const {value, done} = await reader.read(); if (done) break;
+      buf += dec.decode(value, {stream: true});
+      let cut;
+      while ((cut = buf.indexOf('\n\n')) >= 0) {
+        const chunk = buf.slice(0, cut); buf = buf.slice(cut + 2);
+        const data = chunk.split('\n').filter(l => l.startsWith('data:')).map(l => l.slice(5).trim()).join('');
+        if (!data) continue;
+        let ev; try { ev = JSON.parse(data); } catch { continue; }
+        if (ev.type === 'content_block_delta' && ev.delta?.type === 'text_delta') { text += ev.delta.text; onProgress?.(text.length); }
+        else if (ev.type === 'message_delta' && ev.delta?.stop_reason) stop = ev.delta.stop_reason;
+        else if (ev.type === 'error') throw {code: 'http', status: 'stream', message: ev.error?.message || 'stream error'};
+      }
+    }
+  } catch (e) { throw e?.name === 'AbortError' ? {code: 'cancelled'} : e; }
+  if (stop === 'refusal') throw {code: 'refused'};
+  if (stop === 'max_tokens') throw {code: 'truncated'};
+  return text;
+}
+
+// OpenAI Chat Completions over HTTP, asking for a JSON object back.
+async function callOpenAI(prompt, signal) {
+  const model = (S.ai.models.openai || '').trim() || 'gpt-5';
+  let res;
+  try {
+    res = await fetch('https://api.openai.com/v1/chat/completions', {method: 'POST', signal,
+      headers: {'content-type': 'application/json', authorization: 'Bearer ' + S.ai.keys.openai},
+      body: JSON.stringify({model, messages: [{role: 'user', content: prompt}], response_format: {type: 'json_object'}})});
+  } catch (e) { throw e?.name === 'AbortError' ? {code: 'cancelled'} : {code: 'network'}; }
+  const j = await res.json().catch(() => null);
+  if (!res.ok) throw {code: 'http', status: res.status, message: j?.error?.message || res.statusText};
+  const choice = j?.choices?.[0];
+  if (choice?.finish_reason === 'length') throw {code: 'truncated'};
+  return choice?.message?.content || '';
+}
+
+async function aiJSON(prompt, {kind = 'gen', signal, onProgress} = {}) {
+  const p = S.ai.provider;
+  if (p === 'app') return S.sample.json(prompt, {signal, cache: false, modelTier: kind === 'grade' ? 'default' : nCases() ? 'complex' : 'default'});
+  if (p === 'anthropic') return parseLoose(await callAnthropic(prompt, kind, signal, onProgress));
+  if (p === 'openai') return parseLoose(await callOpenAI(prompt, signal));
+  throw {code: 'manual'};
+}
+function aiErrMsg(e) {
+  const c = e?.code;
+  if (c === 'http') {
+    if (e.status === 401 || e.status === 403) return t('eKey');
+    if (e.status === 429) return t('wRate');
+    return t('eHttp', {s: e.status, m: String(e.message || '').slice(0, 160)});
+  }
+  return t({not_granted: 'wNotGranted', rate_limited: 'wRate', invalid_json: 'wJson', network: 'eNet', refused: 'eRefused', truncated: 'eTrunc'}[c] || 'wConn');
+}
+
+// ---------- copy-paste flow for ChatGPT / Claude websites ----------
+async function copyText(s) { try { await navigator.clipboard.writeText(s); return true; } catch { return false; } }
+function showChatFlow(prompt) {
+  S.chatPrompt = prompt;
+  setStatus(`<div class="chatflow">
+    <b>${t('chatTitle')}</b>
+    <ol>
+      <li><button class="ghost" data-act="chatCopy">${t('chatCopy')}</button> <span class="hint" id="chatCopied"></span></li>
+      <li>${t('chatOpen')} <a class="ghost" href="https://chatgpt.com/" target="_blank" rel="noopener">ChatGPT ↗</a> <a class="ghost" href="https://claude.ai/new" target="_blank" rel="noopener">Claude ↗</a></li>
+      <li>${t('chatPasteStep')}</li>
+    </ol>
+    <details><summary>${t('chatShow')}</summary><textarea id="chatPromptBox" readonly>${esc(prompt)}</textarea></details>
+    <textarea id="chatIn" placeholder="${esc(t('chatPastePh'))}"></textarea>
+    <div class="q-actions"><button class="primary" data-act="chatImport">${t('chatImport')}</button><span class="hint" id="chatErr"></span></div>
+  </div>`);
+}
+
+// ---------- AI service panel in the setup rail ----------
+function renderAIPanel() {
+  const p = S.ai.provider;
+  const label = {app: t('pvApp'), chat: t('pvChat'), anthropic: t('pvAnthropic'), openai: t('pvOpenAI')};
+  let conf = '';
+  if (p === 'app') conf = `<p class="hint">${t(S.sample ? 'appReady' : 'appWait')}</p>`;
+  else if (p === 'chat') conf = `<p class="hint">${t('chatNote')}</p>`;
+  else conf = `
+    <label class="field"><span>API key</span><input id="aiKey" type="password" autocomplete="off" spellcheck="false" placeholder="${p === 'anthropic' ? 'sk-ant-…' : 'sk-…'}" value="${esc(S.ai.keys[p])}"></label>
+    <label class="field"><span>${t('modelLabel')}</span><input id="aiModel" list="aiModels-${p}" autocomplete="off" spellcheck="false" value="${esc(S.ai.models[p])}"></label>
+    <datalist id="aiModels-anthropic"><option value="claude-opus-5-5"><option value="claude-sonnet-5-5"><option value="claude-haiku-5-5"></datalist>
+    <datalist id="aiModels-openai"><option value="gpt-5"><option value="gpt-5-mini"></datalist>
+    <label class="check"><input type="checkbox" id="aiRemember"${S.ai.remember ? ' checked' : ''}> ${t('remember')}</label>
+    <p class="hint">${t(p === 'anthropic' ? 'keyNoteA' : 'keyNoteO')}</p>`;
+  $('#aiPanel').innerHTML = `
+    ${IN_CLAUDE ? '' : `<a class="claude-link" href="${ART_URL}" target="_blank" rel="noopener"><b>${t('openInClaude')}</b><span>${t('openInClaudeHint')}</span></a>`}
+    <div class="seg">${AI_PROVIDERS.map(x => `<button data-aip="${x}" class="${x === p ? 'on' : ''}" aria-pressed="${x === p}">${esc(label[x])}</button>`).join('')}</div>
+    ${conf}`;
+}
+document.addEventListener('input', e => {
+  const p = S.ai.provider;
+  if (e.target.id === 'aiKey') { S.ai.keys[p] = e.target.value.trim(); if (S.ai.remember) writeKey(p, S.ai.keys[p]); }
+  if (e.target.id === 'aiModel') { S.ai.models[p] = e.target.value.trim(); store.set('aiModel:' + p, S.ai.models[p]); }
+});
+document.addEventListener('change', e => {
+  if (e.target.id !== 'aiRemember') return;
+  S.ai.remember = e.target.checked; store.set('aiRemember', S.ai.remember);
+  ['anthropic', 'openai'].forEach(p => writeKey(p, S.ai.remember ? S.ai.keys[p] : ''));
+});
+
 // ---------- grading ----------
 const norm = s => String(s).trim().replace(/\s+/g, '').replace(/"/g, "'").replace(/;+$/, '');
 const loosen = s => norm(s).toLowerCase().replace(/array\(|\)|\[|\]/g, '');
@@ -3385,9 +3570,9 @@ function explainHTML(q, key) {
       <button class="ghost${q.self === 1 ? ' on' : ''}" data-self="${key}" data-v="1">${t('sgRight')}</button>
       <button class="ghost${q.self === 0.5 ? ' on' : ''}" data-self="${key}" data-v="0.5">${t('sgPart')}</button>
       <button class="ghost${q.self === 0 ? ' on' : ''}" data-self="${key}" data-v="0">${t('sgWrong')}</button>
-      ${S.sample ? `<button class="ghost" data-ai-grade="${key}">${t('aiGradeBtn')}</button>` : ''}</div>` : '';
+      ${aiReady() ? `<button class="ghost" data-ai-grade="${key}">${t(S.ai.provider === 'chat' ? 'gradeChat' : 'aiGradeBtn')}</button>` : ''}</div>` : '';
   const override = q.k === 'code' && q.res && q.res.score < 1 ? `<div class="selfgrade">${t('eqQ')}<button class="ghost" data-override="${key}">${t('markRight')}</button></div>` : '';
-  const ai = q.ai ? `<div class="ai-fb"><b>${t('aiFb')}</b>${rich(q.ai)}</div>` : '';
+  const ai = q.ai ? `<div class="ai-fb"><b>${t('aiFb')}</b>${q.ai}</div>` : '';
   return `<div class="explain"><div class="ans">${ans}</div>${model}${keys}<div>${rich(q.e || '')}</div>${self}${override}${ai}</div>`;
 }
 
@@ -3515,35 +3700,41 @@ function setTitle() {
   else S.title = {key: 'tPractice', vars: {n: S.topics.size}};
 }
 
+function importAIResult(res) {
+  const singles = (Array.isArray(res) ? res : res?.questions || []).map(x => validAI(x)).filter(Boolean);
+  const cases = (Array.isArray(res?.cases) ? res.cases : []).map(validCase).filter(Boolean);
+  if (!singles.length && !cases.length) throw {code: 'invalid_json'};
+  let note = t('aiNote', {a: singles.length, b: cases.length ? t('aiNoteCases', {n: cases.length}) : ''});
+  const fill = buildExam();
+  const exam = singles.map(prep);
+  if (singles.length < S.count) { const top = fill.filter(q => q.k !== 'case').slice(0, S.count - singles.length); exam.push(...top); if (top.length) note += t('aiTopS', {n: top.length}); }
+  exam.push(...cases.map(prep));
+  if (cases.length < nCases()) { const top = fill.filter(q => q.k === 'case').slice(0, nCases() - cases.length); exam.push(...top); if (top.length) note += t('aiTopC', {n: top.length}); }
+  setTitle(); S.endedAt = null; S.exam = exam; S.title.suffix = (S.title.suffix || '') + ' · AI';
+  renderExam(); setStatus(note);
+}
+
 async function generate() {
   if (!S.topics.size) { setStatus(t('needTopic'), true); return; }
   if (!S.kinds.size && !nCases()) { setStatus(t('needType'), true); return; }
   saveSettings(); setTitle(); S.endedAt = null;
-  if (S.src === 'ai' && S.sample) {
+  if (S.src === 'ai') {
+    const prompt = aiPrompt();
+    if (S.ai.provider === 'chat') { showChatFlow(prompt); return; }
+    if (!aiReady()) { setStatus(t(S.ai.provider === 'app' ? 'appWait' : 'needKey'), true); return; }
     S.aiCtl?.abort(); const ctl = S.aiCtl = new AbortController();
     $('#genBtn').disabled = true;
-    setStatus(`${t('aiWorking', {n: S.count, c: nCases() ? t('aiWorkingCases', {n: nCases()}) : ''})} <button class="ghost" id="stopAI">${t('stop')}</button>`);
+    setStatus(`${t('aiWorking', {n: S.count, c: nCases() ? t('aiWorkingCases', {n: nCases()}) : ''})} <span class="hint" id="aiProg"></span> <button class="ghost" id="stopAI">${t('stop')}</button>`);
     $('#stopAI').onclick = () => ctl.abort();
     try {
-      const res = await S.sample.json(aiPrompt(), {signal: ctl.signal, cache: false, modelTier: nCases() ? 'complex' : 'default'});
-      const singles = (Array.isArray(res) ? res : res?.questions || []).map(x => validAI(x)).filter(Boolean);
-      const cases = (res?.cases || []).map(validCase).filter(Boolean);
-      if (!singles.length && !cases.length) throw {code: 'invalid_json'};
-      let note = t('aiNote', {a: singles.length, b: cases.length ? t('aiNoteCases', {n: cases.length}) : ''});
-      const fill = buildExam();
-      const exam = [...singles.map(prep)];
-      if (singles.length < S.count) { const top = fill.filter(q => q.k !== 'case').slice(0, S.count - singles.length); exam.push(...top); note += t('aiTopS', {n: top.length}); }
-      exam.push(...cases.map(prep));
-      if (cases.length < nCases()) { const top = fill.filter(q => q.k === 'case').slice(0, nCases() - cases.length); exam.push(...top); if (top.length) note += t('aiTopC', {n: top.length}); }
-      S.exam = exam; S.title.suffix = (S.title.suffix || '') + ' · Claude';
-      renderExam(); setStatus(note);
+      const res = await aiJSON(prompt, {kind: 'gen', signal: ctl.signal, onProgress: n => { const p = $('#aiProg'); if (p) p.textContent = t('aiProgress', {n: n.toLocaleString('en-US')}); }});
+      importAIResult(res);
     } catch (e) {
       if (e?.code === 'cancelled') { setStatus(t('stopped')); }
       else {
-        const why = t({not_granted: 'wNotGranted', rate_limited: 'wRate', invalid_json: 'wJson'}[e?.code] || 'wConn');
         S.exam = buildExam(); renderExam();
-        setStatus(t('aiFail', {w: why}), true);
-        if (e?.code === 'not_granted') { S.sample = null; S.src = 'bank'; renderSetup(); }
+        setStatus(t('aiFail', {w: aiErrMsg(e)}), true);
+        if (e?.code === 'not_granted') { S.sample = null; renderSetup(); }
       }
     } finally { $('#genBtn').disabled = false; }
     return;
@@ -3555,24 +3746,32 @@ async function generate() {
   if (lack.length) setStatus(t('short', {x: lack.join(LANG === 'zh' ? '，' : '; ')}));
 }
 
-async function aiGrade(key) {
-  const q = getQ(key); const ans = (el(`q${key}t`).value || '').trim();
-  const box = el('ex' + key);
-  if (!ans) { q.ai = t('aiNoAns'); box.innerHTML = explainHTML(q, key); return; }
-  q.ai = t('aiGrading'); box.innerHTML = explainHTML(q, key);
+function gradePrompt(q, key, ans) {
   const parent = String(key).includes('-') ? S.exam[+String(key).split('-')[0]] : null;
-  try {
-    const r = await S.sample.json(`You are a Data 8 (UC Berkeley) TA grading a short-answer exam question. Be fair but strict about the course's precise wording (e.g. "fail to reject" not "accept"; confidence is about the process; null must be a chance model).
+  return `You are a Data 8 (UC Berkeley) TA grading a short-answer exam question. Be fair but strict about the course's precise wording (e.g. "fail to reject" not "accept"; confidence is about the process; null must be a chance model).
 ${parent ? 'Background: ' + parent.bg + '\n' : ''}Question: ${q.q}${q.code ? '\nCode:\n' + q.code : ''}
 Model answer: ${q.a}
 Grading key points: ${(q.p || []).join(' | ')}
 Student answer: ${ans}
-Reply with ONLY JSON: {"score": 0 | 0.5 | 1, "feedback": "2-4 sentences in ${AI_LANG[LANG].fb} saying what was right, what was missing or wrong, and how to phrase it on the exam"}`, {modelTier: 'default', cache: false});
+Reply with ONLY a JSON object: {"score": 0 | 0.5 | 1, "feedback": "2-4 sentences in ${AI_LANG[LANG].fb} saying what was right, what was missing or wrong, and how to phrase it on the exam"}`;
+}
+async function aiGrade(key) {
+  const q = getQ(key); const ans = (el(`q${key}t`).value || '').trim();
+  const box = el('ex' + key);
+  if (!ans) { q.ai = t('aiNoAns'); box.innerHTML = explainHTML(q, key); return; }
+  if (S.ai.provider === 'chat') {
+    const ok = await copyText(gradePrompt(q, key, ans));
+    q.ai = t(ok ? 'gradeChatNote' : 'copyFail') + ' <a href="https://chatgpt.com/" target="_blank" rel="noopener">ChatGPT ↗</a> · <a href="https://claude.ai/new" target="_blank" rel="noopener">Claude ↗</a>';
+    box.innerHTML = explainHTML(q, key); return;
+  }
+  q.ai = t('aiGrading'); box.innerHTML = explainHTML(q, key);
+  try {
+    const r = await aiJSON(gradePrompt(q, key, ans), {kind: 'grade'});
     const s = [0, 0.5, 1].includes(+r?.score) ? +r.score : null;
-    q.ai = `${s == null ? '' : t('aiSuggest', {a: s * ptsOf(q), b: ptsOf(q)})}${r?.feedback || ''}`;
+    q.ai = esc(`${s == null ? '' : t('aiSuggest', {a: s * ptsOf(q), b: ptsOf(q)})}${r?.feedback || ''}`);
     if (s != null) { q.self = s; paintVerdict(key); afterScore(key); }
   } catch (e) {
-    q.ai = t(e?.code === 'not_granted' ? 'aiNoPerm' : 'aiGradeFail');
+    q.ai = esc(e?.code === 'not_granted' ? t('aiNoPerm') : t('aiGradeErr', {w: aiErrMsg(e)}));
   }
   box.innerHTML = explainHTML(q, key);
 }
@@ -3616,8 +3815,9 @@ function renderSetup() {
   seg('#typeSeg', Object.keys(PTS).map(k => [k, LANG === 'zh' ? `${KIND[k].zh} ${KIND[k].en}` : KIND_L[k][LANG]]), S.kinds, 'kind');
   seg('#diffSeg', [['mixed', t('dMixed')], ['exam', t('dExam')], ['hard', t('dHard')]], S.diff, 'diff');
   seg('#modeSeg', [['practice', t('mPractice')], ['exam', t('mExam')]], S.mode, 'mode');
-  seg('#srcSeg', [['bank', t('sBank')], ['ai', t('sAI'), !S.sample]], S.src, 'src');
-  $('#srcHint').textContent = t(S.sample ? (S.src === 'ai' ? 'hintAI' : 'hintBank') : 'hintNoAI');
+  seg('#srcSeg', [['bank', t('sBank')], ['ai', t('sAI')]], S.src, 'src');
+  $('#srcHint').textContent = t(S.src === 'ai' ? 'hintAI' : 'hintBank');
+  renderAIPanel();
   const {statics, gens, cases} = poolFor(S.topics, S.kinds, S.diff);
   $('#poolInfo').textContent = S.topics.size ? t('pool', {a: statics.length, b: gens.length, c: S.caseOn ? cases.length : 0}) : '';
 }
@@ -3660,6 +3860,13 @@ document.addEventListener('click', e => {
   const b = e.target.closest('button'); if (!b) return;
   const d = b.dataset;
   if (d.lang) { setLang(d.lang); return; }
+  if (d.aip) { S.ai.provider = d.aip; store.set('aiProvider', d.aip); renderAIPanel(); return; }
+  if (d.act === 'chatCopy') { copyText(S.chatPrompt).then(ok => { el('chatCopied').textContent = t(ok ? 'copied' : 'copyFail'); if (!ok) { const dt = document.querySelector('.chatflow details'); if (dt) dt.open = true; el('chatPromptBox')?.select(); } }); return; }
+  if (d.act === 'chatImport') {
+    try { importAIResult(parseLoose(el('chatIn').value)); window.scrollTo(0, 0); }
+    catch { el('chatErr').textContent = t('chatBad'); }
+    return;
+  }
   if (d.preset) {
     if (d.preset === 'all') S.topics = new Set(TOPICS.map(x => x.id));
     else if (d.preset === 'none') S.topics = new Set();
