@@ -23,7 +23,7 @@ const UI = {
   pM1:{zh:'期中一 MT1', en:'Midterm 1', es:'Parcial 1'}, pM2:{zh:'期中二 MT2', en:'Midterm 2', es:'Parcial 2'}, pFin:{zh:'期末新增', en:'Final-only', es:'Solo final'},
   pAll:{zh:'全选 All', en:'All', es:'Todos'}, pNone:{zh:'清空 Clear', en:'Clear', es:'Ninguno'}, weakTag:{zh:' · 弱项', en:' · weak spot', es:' · punto débil'},
   countLabel:{zh:'小题数量 Questions', en:'Single questions', es:'Preguntas sueltas'},
-  caseLabel:{zh:'大题 Case studies', en:'Case studies', es:'Casos de estudio'}, caseHint:{zh:'约 20 分/道', en:'about 20 pts each', es:'unos 20 pts cada uno'},
+  caseLabel:{zh:'大题 Case studies', en:'Case studies', es:'Casos de estudio'}, caseHint:{zh:'约 20–26 分/道', en:'about 20–26 pts each', es:'unos 20–26 pts cada uno'},
   caseOn:{zh:'生成大题', en:'Include', es:'Incluir'}, caseOff:{zh:'不要大题', en:'Skip', es:'Omitir'}, caseN:{zh:'{n} 道', en:'{n}', es:'{n}'},
   typesLabel:{zh:'题型 Types', en:'Question types', es:'Tipos de pregunta'},
   diffLabel:{zh:'难度 Difficulty', en:'Difficulty', es:'Dificultad'}, dMixed:{zh:'混合 Mixed', en:'Mixed', es:'Mixta'}, dExam:{zh:'考试难度 Exam', en:'Exam level', es:'Nivel examen'}, dHard:{zh:'只要难题 Hard', en:'Hard only', es:'Solo difíciles'},

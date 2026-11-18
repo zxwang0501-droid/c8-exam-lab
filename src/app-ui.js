@@ -155,7 +155,7 @@ function aiPrompt() {
   const n = nCases();
   const caseSpec = n ? `
 
-ALSO write exactly ${n} CASE STUDIES ("big questions", about 20 points each), like the long multi-part questions on 2021–2026 Data 8 finals: a realistic background story (3–5 sentences, original scenario), usually a small table excerpt (4–5 rows plus "rows omitted"), a description of each column, then 5–8 parts labeled a, b, c... that build on the same scenario and COMBINE several of the chosen topics (e.g. a hypothesis test from null/alternative through test statistic, simulation code, p-value code, and conclusion; or regression from slope through residuals to inference and causation). Parts may be any of mc, multi, tf, short, code, each with "pts" (1–5) so the parts add up to about 20. Example case (format only):
+ALSO write exactly ${n} CASE STUDIES ("big questions", about 20 points each), like the long multi-part questions on 2021–2026 Data 8 finals: a realistic background story (3–5 sentences, original scenario), then data tables that look like REAL exam tables: each table has a name and 5–7 columns of mixed types (str, int, float, bool), including columns that the main question does not need, 5–6 realistic rows shown plus a "rows omitted" count, and often a SECOND related table that must be joined; describe every column as "table.column (type): meaning". Then 6–9 parts labeled a, b, c... that build on the same scenario and COMBINE several of the chosen topics (e.g. a hypothesis test from null/alternative through test statistic, simulation code, p-value code, and conclusion; or regression from slope through residuals to inference and causation). At least two parts must require multi-step datascience Table code on those tables (for example where + group, join + select + group, pivot with a collect function, with_column with apply or column arithmetic) EVEN WHEN the main topic is inference, testing, or regression, the way real exams mix Table manipulation into every big question. Parts may be any of mc, multi, tf, short, code, each with "pts" (1–5) so the parts add up to 20–26. Example case (format only):
 ${exCase}` : '';
   return `You write ORIGINAL practice questions for UC Berkeley Data C8 (Data 8, Foundations of Data Science), matching the style and difficulty of the course's 2021–2026 midterms and finals. Do not reproduce real exam questions; invent new scenarios (campus life, sports, health, transit, food, etc.).
 
@@ -177,7 +177,7 @@ Return ONLY a JSON object: {"questions": [...], "cases": [...]}. Each question (
  "blanks": [{"l": "A", "acc": ["accepted answer", "equivalent alternative"]}]   // code only
  "p": ["key point"]              // short only, 2-4 grading key points
  "e": "explanation; for multiple choice say why the wrong options are wrong"}
-Each case is: {"title": "short title", "t": ["topic ids"], "bg": "background", ${LANG === 'zh' ? '"bgzh": "one-sentence Chinese summary of the background", ' : ''}"table": {"cols": [...], "rows": [[...]], "more": number of omitted rows} (optional), "cols": ["column (type): description", ...] (optional), "code": "optional shared code", "parts": [ {"l": "a", ...question fields...}, ... ]}
+Each case is: {"title": "short title", "t": ["topic ids"], "bg": "background", ${LANG === 'zh' ? '"bgzh": "one-sentence Chinese summary of the background", ' : ''}"tables": [{"name": "table name", "cols": [...], "rows": [[...]], "more": number of omitted rows}], "cols": ["table.column (type): description", ...], "code": "optional shared code", "parts": [ {"l": "a", ...question fields...}, ... ]}
 
 Examples of single questions (format only):
 ${ex.join('\n')}`;
@@ -205,7 +205,8 @@ function validCase(x) {
   if (x.bgzh) c.bgzh = String(x.bgzh);
   if (x.code) c.code = String(x.code);
   if (Array.isArray(x.cols)) c.cols = x.cols.map(String);
-  if (x.table && Array.isArray(x.table.cols) && Array.isArray(x.table.rows)) c.table = {cols: x.table.cols.map(String), rows: x.table.rows.filter(Array.isArray).slice(0, 8).map(r => r.map(String)), more: +x.table.more || 0};
+  const tb = (Array.isArray(x.tables) ? x.tables : x.table ? [x.table] : []).filter(o => o && Array.isArray(o.cols) && Array.isArray(o.rows)).slice(0, 3);
+  if (tb.length) c.tables = tb.map(o => ({name: o.name ? String(o.name) : '', cols: o.cols.map(String), rows: o.rows.filter(Array.isArray).slice(0, 8).map(r => r.map(String)), more: +o.more || 0}));
   return c;
 }
 function setStatus(html, err) { const s = $('#status'); s.hidden = !html; s.className = 'status' + (err ? ' err' : ''); s.innerHTML = html || ''; }

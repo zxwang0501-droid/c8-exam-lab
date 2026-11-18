@@ -182,7 +182,8 @@ function renderQ(q, i) {
 }
 
 function renderCase(q, i) {
-  const table = q.table ? `<div class="tbl"><table><thead><tr>${q.table.cols.map(c => `<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>${q.table.rows.map(r => `<tr>${r.map(v => `<td>${esc(v)}</td>`).join('')}</tr>`).join('')}</tbody></table>${q.table.more ? `<div class="more">${t('rowsOmitted', {n: Number(q.table.more).toLocaleString('en-US')})}</div>` : ''}</div>` : '';
+  const tbls = q.tables || (q.table ? [q.table] : []);
+  const table = tbls.map(tb => `<div class="tbl">${tb.name ? `<div class="tname"><code>${esc(tb.name)}.show(${tb.rows.length})</code></div>` : ''}<table><thead><tr>${tb.cols.map(c => `<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>${tb.rows.map(r => `<tr>${r.map(v => `<td>${esc(v)}</td>`).join('')}</tr>`).join('')}</tbody></table>${tb.more ? `<div class="more">${t('rowsOmitted', {n: Number(tb.more).toLocaleString('en-US')})}</div>` : ''}</div>`).join('');
   const cols = q.cols ? `<ul class="cols">${q.cols.map(c => `<li>${rich(c)}</li>`).join('')}</ul>` : '';
   const parts = q.parts.map((p, j) => {
     const key = `${i}-${j}`;
