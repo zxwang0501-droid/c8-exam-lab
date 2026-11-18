@@ -170,6 +170,25 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; }
   .tabs a small { display: none; }
 }
 .foot { color: var(--muted); font-size: 12.5px; padding-block: 0 40px; }
+/* case studies */
+.pill.mock { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.tag.pts { background: transparent; border: 1px solid var(--line); color: var(--ink); font-variant-numeric: tabular-nums; }
+.q.case { gap: 14px; background: linear-gradient(var(--card), var(--card)); }
+.case-title { font-size: 20px; letter-spacing: -0.01em; }
+.case-score { margin-left: auto; font-family: var(--f-display); font-weight: 600; color: var(--accent); font-variant-numeric: tabular-nums; }
+.bgbox { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: grid; gap: 8px; max-width: 80ch; }
+.bgbox details summary { cursor: pointer; color: var(--muted); font-size: 13px; }
+.bgbox details p { margin: 6px 0 0; font-size: 14px; }
+.tbl { overflow-x: auto; max-width: 100%; }
+.tbl table { border-collapse: collapse; font-family: var(--f-mono); font-size: 13px; }
+.tbl th, .tbl td { padding: 4px 14px 4px 0; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.tbl th { font-weight: 500; color: var(--muted); }
+.tbl .more { font-family: var(--f-mono); font-size: 12px; color: var(--muted); padding-top: 4px; }
+.cols { margin: 0; padding-left: 20px; font-size: 13.5px; color: var(--muted); display: grid; gap: 2px; max-width: 80ch; }
+.parts { display: grid; gap: 0; }
+.part { border-top: 1px dashed var(--line); padding: 16px 0 6px; display: grid; gap: 10px; min-width: 0; }
+.part-head { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; font-size: 12.5px; }
+.part-l { font-family: var(--f-display); font-weight: 700; font-size: 15px; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 
@@ -188,6 +207,7 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; }
       <aside class="setup" aria-label="Exam settings">
         <div class="label">知识点 Topics <em id="selCount"></em></div>
         <div class="quick">
+          <button class="pill mock" data-preset="mock">完整模拟考 Mock exam</button>
           <button class="pill weak" data-preset="weak">我的弱项 · 检验/区间</button>
           <button class="pill" data-preset="m1">期中一 MT1</button>
           <button class="pill" data-preset="m2">期中二 MT2</button>
@@ -196,8 +216,10 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; }
           <button class="pill" data-preset="none">清空 Clear</button>
         </div>
         <div id="topicList"></div>
-        <div class="label">题量 Questions</div>
+        <div class="label">小题数量 Questions</div>
         <div class="seg" id="countSeg"></div>
+        <div class="label">大题 Case studies <em>约 20 分/道</em></div>
+        <div class="seg" id="caseSeg"></div>
         <div class="label">题型 Types</div>
         <div class="seg" id="typeSeg"></div>
         <div class="label">难度 Difficulty</div>
@@ -214,7 +236,7 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; }
         <div class="paper-head">
           <h2 id="paperTitle">Practice Exam</h2>
           <div class="meta" id="paperMeta"></div>
-          <div class="legend"><span><i class="c"></i>圆圈 = 单选 (one answer)</span><span><i class="s"></i>方框 = 多选 (select all that apply)</span><span>题干英文同考试，解析中文</span></div>
+          <div class="legend"><span><i class="c"></i>圆圈 = 单选 (one answer)</span><span><i class="s"></i>方框 = 多选 (select all that apply)</span><span>大题 = 背景故事 + 数据表 + 多个小问</span><span>题干英文同考试，解析中文</span></div>
         </div>
         <div class="status" id="status" hidden></div>
         <div class="qs" id="questions"></div>

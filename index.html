@@ -170,6 +170,25 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; }
   .tabs a small { display: none; }
 }
 .foot { color: var(--muted); font-size: 12.5px; padding-block: 0 40px; }
+/* case studies */
+.pill.mock { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.tag.pts { background: transparent; border: 1px solid var(--line); color: var(--ink); font-variant-numeric: tabular-nums; }
+.q.case { gap: 14px; background: linear-gradient(var(--card), var(--card)); }
+.case-title { font-size: 20px; letter-spacing: -0.01em; }
+.case-score { margin-left: auto; font-family: var(--f-display); font-weight: 600; color: var(--accent); font-variant-numeric: tabular-nums; }
+.bgbox { background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: grid; gap: 8px; max-width: 80ch; }
+.bgbox details summary { cursor: pointer; color: var(--muted); font-size: 13px; }
+.bgbox details p { margin: 6px 0 0; font-size: 14px; }
+.tbl { overflow-x: auto; max-width: 100%; }
+.tbl table { border-collapse: collapse; font-family: var(--f-mono); font-size: 13px; }
+.tbl th, .tbl td { padding: 4px 14px 4px 0; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.tbl th { font-weight: 500; color: var(--muted); }
+.tbl .more { font-family: var(--f-mono); font-size: 12px; color: var(--muted); padding-top: 4px; }
+.cols { margin: 0; padding-left: 20px; font-size: 13.5px; color: var(--muted); display: grid; gap: 2px; max-width: 80ch; }
+.parts { display: grid; gap: 0; }
+.part { border-top: 1px dashed var(--line); padding: 16px 0 6px; display: grid; gap: 10px; min-width: 0; }
+.part-head { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; font-size: 12.5px; }
+.part-l { font-family: var(--f-display); font-weight: 700; font-size: 15px; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 
@@ -188,6 +207,7 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; }
       <aside class="setup" aria-label="Exam settings">
         <div class="label">知识点 Topics <em id="selCount"></em></div>
         <div class="quick">
+          <button class="pill mock" data-preset="mock">完整模拟考 Mock exam</button>
           <button class="pill weak" data-preset="weak">我的弱项 · 检验/区间</button>
           <button class="pill" data-preset="m1">期中一 MT1</button>
           <button class="pill" data-preset="m2">期中二 MT2</button>
@@ -196,8 +216,10 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; }
           <button class="pill" data-preset="none">清空 Clear</button>
         </div>
         <div id="topicList"></div>
-        <div class="label">题量 Questions</div>
+        <div class="label">小题数量 Questions</div>
         <div class="seg" id="countSeg"></div>
+        <div class="label">大题 Case studies <em>约 20 分/道</em></div>
+        <div class="seg" id="caseSeg"></div>
         <div class="label">题型 Types</div>
         <div class="seg" id="typeSeg"></div>
         <div class="label">难度 Difficulty</div>
@@ -214,7 +236,7 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; }
         <div class="paper-head">
           <h2 id="paperTitle">Practice Exam</h2>
           <div class="meta" id="paperMeta"></div>
-          <div class="legend"><span><i class="c"></i>圆圈 = 单选 (one answer)</span><span><i class="s"></i>方框 = 多选 (select all that apply)</span><span>题干英文同考试，解析中文</span></div>
+          <div class="legend"><span><i class="c"></i>圆圈 = 单选 (one answer)</span><span><i class="s"></i>方框 = 多选 (select all that apply)</span><span>大题 = 背景故事 + 数据表 + 多个小问</span><span>题干英文同考试，解析中文</span></div>
         </div>
         <div class="status" id="status" hidden></div>
         <div class="qs" id="questions"></div>
@@ -1266,6 +1288,342 @@ addQ(
  e:'由样本算出来的数是 statistic；其余描述总体或“真实”模型，是 parameter。'},
 );
 
+// Part E: question shapes seen in 2021–2022 exams (true/false concept blocks, "select all correct nulls", helper functions).
+addQ(
+{id:'e1', t:['normal'], k:'tf', d:2, q:'True or False: By the Central Limit Theorem, the sample MEDIAN of a large random sample drawn with replacement has a roughly normal distribution.', a:false,
+ e:'False。课上讲的 CLT 只针对样本的“和”与“平均值”，不能套用到中位数、最大值等其他统计量。'},
+{id:'e2', t:['regression'], k:'tf', d:2, q:'True or False: The slope of the regression line is measured in the units of y.', a:false,
+ e:'False。斜率的单位是“y 的单位 / x 的单位”（比如每小时多少分），不是 y 的单位。截距的单位才是 y 的单位。'},
+{id:'e3', t:['regression'], k:'tf', d:1, q:'True or False: When both x and y are in standard units, the intercept of the regression line is 0.', a:true,
+ e:'True。标准单位下回归线是 y = r × x，必过原点 (0, 0)。'},
+{id:'e4', t:['residuals'], k:'tf', d:2, q:'True or False: Whether the residuals of a regression line average to 0 depends on whether x and y are measured in standard units.', a:false,
+ e:'False。不管用什么单位，回归线残差的平均值都是 0。'},
+{id:'e5', t:['models'], k:'tf', d:1, q:'True or False: Total variation distance can be used to compare two categorical distributions that have only two categories.', a:true,
+ e:'True。两个类别也是类别分布，TVD 照样能算（此时 TVD 就等于其中一类比例之差的绝对值）。'},
+{id:'e6', t:['abtest'], k:'tf', d:2, q:'True or False: In an A/B test, we shuffle the group labels in order to randomly assign subjects to treatment and control.', a:false,
+ e:'False。打乱标签是为了模拟“零假设成立时”统计量会怎么变化，是在分析阶段做的；真正的随机分组发生在实验设计阶段。'},
+{id:'e7', t:['classification'], k:'tf', d:2, q:'True or False: A classifier is overfitting if it performs well on both the training set and the test set.', a:false,
+ e:'False。过拟合的特征是训练集上很好、测试集上明显变差。两边都好说明泛化得不错。'},
+{id:'e8', t:['bayes'], k:'tf', d:2, q:'True or False: Bayes\' Rule can be used to update subjective beliefs (priors) about uncertain events after seeing evidence.', a:true,
+ e:'True。prior 可以是主观判断，Bayes 规则告诉我们看到证据后怎么更新成 posterior。'},
+{id:'e9', t:['classification'], k:'tf', d:2, q:'True or False: To make a k-NN prediction using the entire training set, you only need to know the class labels of some of the training examples.', a:false,
+ e:'False。投票时邻居可能是任何一个训练点，所以每个训练样本都必须有标签。'},
+{id:'e10', t:['normal','center'], k:'tf', d:2, q:'True or False: The SD of a list that contains only 0s and 1s can never be larger than 0.5.', a:true,
+ e:'True。0/1 数据的 SD = √(p(1 − p))，在 p = 0.5 时最大，等于 0.5。'},
+{id:'e11', t:['center'], k:'tf', d:1, q:'True or False: For ANY list of numbers, at least 75% of the values are within 2 SDs of the average.', a:true,
+ e:'True。Chebyshev：1 − 1/2² = 75%，对任何分布都成立。'},
+{id:'e12', t:['models','hyptest'], k:'multi', d:3,
+ q:'A clinic wants to know whether its 700 sampled appointments are spread evenly over the 5 weekdays. The observed proportions are (0.24, 0.19, 0.18, 0.17, 0.22). Select ALL correct statements of the null hypothesis.',
+ c:['Each appointment is equally likely to fall on any of the 5 weekdays, independently of the others.','The 700 appointments are like a sample drawn uniformly at random with replacement from the 5 weekdays.','The 700 appointments are drawn at random from the distribution (0.24, 0.19, 0.18, 0.17, 0.22).','Each appointment has a 24% chance of being on Monday.','The distribution of weekdays in the sample is the same as in the population.'], a:[0,1],
+ e:'零假设是“均匀分布”这个可模拟的模型（A、B 是同一个意思的两种说法）。C、D 用的是观测比例；E 是关于样本的模糊说法，没有给出可以模拟的具体概率。'},
+{id:'e13', t:['models','hyptest'], k:'mc', d:2,
+ q:'For the clinic in the previous question, which is a correct ALTERNATIVE hypothesis for a test that uses TVD?',
+ c:['Appointments are not equally likely to fall on each weekday.','Mondays are the busiest day.','The observed distribution is different from (0.2, 0.2, 0.2, 0.2, 0.2).','The null hypothesis is true.'], a:0,
+ e:'TVD 没有方向，对应“不是均匀的”。B 太具体；C 说的是样本（已知事实，不用检验）。'},
+{id:'e14', t:['functions','iteration'], k:'code', d:3,
+ q:'Define repeat_it(f, n), which takes a function f with NO arguments that returns a number, and a positive integer n, and returns an array of the results of calling f n times.',
+ code:'def repeat_it(f, n):\n    results = make_array()\n    for i in np.arange(n):\n        results = [A]\n    return results',
+ blanks:[{l:'A', acc:['np.append(results,f())']}],
+ e:'调用无参数函数要写 f()。每次把结果 append 进数组并重新赋值。这种“把模拟包装成函数”的写法在 2021 年前后的考试里很常见。'},
+{id:'e15', t:['hyptest','iteration'], k:'code', d:3,
+ q:'Large values of the statistic favor the alternative. You will reject the null at the 1% cutoff if the observed statistic is bigger than a threshold computed from 5,000 simulated statistics. Fill in the blank.',
+ code:'threshold = percentile([A], repeat_it(simulate_one, 5000))', blanks:[{l:'A', acc:['99']}],
+ e:'1% cutoff 且大值支持备择 → 观测值要超过模拟分布的第 99 百分位数。'},
+{id:'e16', t:['sampling','probability'], k:'mc', d:2,
+ q:'In which situation does the empirical distribution of the sample most closely resemble the distribution of the population?',
+ c:['A large random sample','A small random sample','A large convenience sample','Any sample, as long as it is drawn with replacement'], a:0,
+ e:'大的随机样本，其经验分布会接近总体分布（law of averages）。方便抽样可能有系统偏差，再大也没用。'},
+{id:'e17', t:['causality'], k:'mc', d:2,
+ q:'A study of 12,000 adults from 40 states finds that people who walk daily report less back pain. The authors say that because their sample is large and nationally representative, the finding should apply to U.S. adults in general. Which facet of data science does this claim mainly concern?',
+ c:['Inference: whether conclusions from the sample generalize to a larger population','Exploration','Prediction','Causation'], a:0,
+ e:'“样本有代表性 → 结论能推广到总体”属于 inference。注意它并不能证明步行能减轻背痛（这是观察性研究）。'},
+);
+
+// Case studies ("大题"): long multi-part questions with a shared background, modeled on the structure of
+// 2021–2026 Data 8 / C8 finals and midterms (scenario + table excerpt + column descriptions + parts (a)(b)(c)...).
+// All scenarios and numbers are original.
+const CASES = [];
+const addCase = (...cs) => cs.forEach(c => CASES.push(c));
+
+addCase(
+{id:'cs-bike', k:'case', d:2, title:'Bike Share Commutes', t:['tables','groups','viz','hist'],
+ bg:'The campus bike-share program logs every ride taken in October. The table rides has one row per ride. Riders either hold an annual membership or pay per ride.',
+ bgzh:'校园共享单车 10 月的骑行记录，每行一次骑行。骑手分为年卡会员和按次付费。',
+ table:{cols:['station','member','minutes','day'], rows:[['Sather Gate','True','12.4','Mon'],['Downtown BART','False','31.0','Mon'],['Sather Gate','True','6.8','Tue'],['Northside','True','9.5','Wed'],['Downtown BART','True','15.2','Fri']], more:8214},
+ cols:['station (str): the station where the ride started','member (bool): True if the rider has an annual membership','minutes (float): length of the ride in minutes','day (str): abbreviated day of the week'],
+ parts:[
+ {l:'a', pts:2, k:'multi', t:['viz'], q:'Which columns of rides contain categorical variables? Select all that apply.', c:['station','member','minutes','day'], a:[0,1,3], fixed:true,
+  e:'station 和 day 是类别；member 是布尔值，只表示“是/否”两类，也是 categorical。minutes 是数值型。'},
+ {l:'b', pts:4, k:'code', t:['tables'], q:'Fill in the blanks so the expression evaluates to an array of the starting stations of all rides longer than 30 minutes taken by NON-members.', code:"rides.where([A]).where([B]).column([C])",
+  blanks:[{l:'A', acc:["'minutes',are.above(30)"]},{l:'B', acc:["'member',False","'member',are.equal_to(False)"]},{l:'C', acc:["'station'"]}],
+  e:"两次 where 分别筛选时长和会员身份，顺序可以互换。are.above(30) 不包含 30 本身，正好对应“longer than 30”。最后用 column 取出数组。"},
+ {l:'c', pts:4, k:'code', t:['groups'], q:'Create a table with one row per station and a column containing the AVERAGE ride length among members only.', code:"rides.where([A]).select([B]).group([C])",
+  blanks:[{l:'A', acc:["'member',True","'member',are.equal_to(True)"]},{l:'B', acc:["'station','minutes'"]},{l:'C', acc:["'station',np.mean","'station',np.average"]}],
+  e:"先筛会员，再只留 station 和 minutes 两列（否则 group 会试图对 day 等字符串列求平均），最后 group('station', np.mean)。新列名是 'minutes mean'。"},
+ {l:'d', pts:2, k:'mc', t:['viz'], q:'The program wants to compare the distribution of ride lengths for members and non-members. Which is most appropriate?', c:["rides.hist('minutes', group='member')","rides.barh('member', 'minutes')","rides.scatter('member', 'minutes')","rides.plot('minutes', 'member')"], a:0,
+  e:'比较两组的“数值分布”→ overlaid histogram，用 group 参数。bar chart 只显示每类一个数；scatter/plot 需要两个数值变量。'},
+ {l:'e', pts:4, k:'mc', t:['hist'], q:'A density-scale histogram of minutes has bins [0, 10), [10, 20), [20, 40), and [40, 60]. The first two bars have heights 4 and 3 percent per minute, and the last bar has height 0.25 percent per minute. What percent of rides lasted at least 20 but less than 40 minutes?', c:['25%','1.25%','30%','20%'], a:0,
+  e:'先算已知 bin 的面积：4×10 = 40%，3×10 = 30%，0.25×20 = 5%。总面积 100%，所以 [20, 40) 占 100 − 40 − 30 − 5 = 25%。'},
+ {l:'f', pts:2, k:'mc', t:['hist'], q:'What is the height of the bar over [20, 40)?', c:['1.25 percent per minute','25 percent per minute','2.5 percent per minute','0.8 percent per minute'], a:0,
+  e:'高度 = 百分比 / 宽度 = 25 / 20 = 1.25 percent per minute。'},
+ {l:'g', pts:2, k:'tf', t:['hist'], q:'True or False: If the bin [20, 40) were split into [20, 30) and [30, 40), the AVERAGE of the two new bar heights would have to equal the height you found in part (f).',
+  a:true, e:'True。两个新 bin 面积之和仍是 25%：h1×10 + h2×10 = 25，所以 (h1 + h2)/2 = 1.25。单个高度可以不同，但平均值必定相等。'},
+ ]},
+
+{id:'cs-dining', k:'case', d:2, title:'Dining Hall Leftovers', t:['python','functions','iteration','groups','causality'],
+ bg:'Cal Dining weighs the food left on returned trays after each meal service to plan portion sizes. The table waste has one row per meal service at one dining hall.',
+ bgzh:'学校食堂称量每顿饭回收餐盘上的剩菜，每行是某个食堂的一次供餐。',
+ table:{cols:['hall','meal','served','leftover_kg'], rows:[['Crossroads','Lunch','812','41.6'],['Cafe 3','Dinner','455','30.1'],['Clark Kerr','Breakfast','230','6.9'],['Foothill','Dinner','390','22.4']], more:1091},
+ cols:['hall (str): the dining hall','meal (str): Breakfast, Lunch, or Dinner','served (int): number of plates served','leftover_kg (float): total kilograms of food left on trays'],
+ parts:[
+ {l:'a', pts:2, k:'code', t:['tables'], q:'What does waste.num_rows evaluate to?', blanks:[{l:'output', acc:['1095']}], loose:true,
+  e:'表里显示了 4 行，还有 1,091 行被省略，共 1,095 行。'},
+ {l:'b', pts:3, k:'code', t:['functions'], q:'Define per_plate, which takes the number of plates served and the kilograms left over, and returns the leftover GRAMS per plate (1 kg = 1000 g).', code:'def per_plate(served, kg):\n    return [A]',
+  blanks:[{l:'A', acc:['kg*1000/served','1000*kg/served','(kg*1000)/served','kg/served*1000']}], e:'把千克换成克（×1000），再除以盘子数。'},
+ {l:'c', pts:3, k:'code', t:['functions'], q:"Add a column 'g per plate' to waste using per_plate.", code:"waste = waste.with_column('g per plate', [A])",
+  blanks:[{l:'A', acc:["waste.apply(per_plate,'served','leftover_kg')"]}], e:'apply 后面列名的顺序要和函数参数顺序一致：先 served，再 leftover_kg。'},
+ {l:'d', pts:3, k:'mc', t:['groups'], q:'Which expression creates a table with one row per hall, one column per meal, and the TOTAL leftover kilograms in each cell?',
+  c:["waste.pivot('meal', 'hall', 'leftover_kg', sum)","waste.pivot('hall', 'meal', 'leftover_kg', sum)","waste.group(['hall', 'meal'], sum)","waste.pivot('meal', 'hall')"], a:0,
+  e:"pivot(变成列的, 变成行的, values, collect)。要“每个 hall 一行、每个 meal 一列”，所以是 pivot('meal', 'hall', 'leftover_kg', sum)。B 行列反了；C 是长表而且 served 也会被加总；D 只数个数。"},
+ {l:'e', pts:4, k:'code', t:['iteration','probability'], q:'Suppose each plate independently comes back with food on it with chance 0.3. Complete the simulation of the NUMBER of plates (out of 400) that come back with food, repeated 10,000 times.', code:'counts = make_array()\nfor i in np.arange(10000):\n    sim = [A]\n    counts = [B]',
+  blanks:[{l:'A', acc:['sample_proportions(400,make_array(0.3,0.7)).item(0)*400','400*sample_proportions(400,make_array(0.3,0.7)).item(0)','sample_proportions(400,make_array(.3,.7)).item(0)*400']},{l:'B', acc:['np.append(counts,sim)']}],
+  e:'sample_proportions 返回比例，要乘 400 才是个数；item(0) 取“有剩菜”那一类。循环里一定要写 counts = np.append(counts, sim)。'},
+ {l:'f', pts:2, k:'mc', t:['groups'], q:"What does waste.group('hall').num_rows represent?", c:['The number of different dining halls in the table','The number of meal services in the table','The number of plates served','The number of meals per day'], a:0,
+  e:"group('hall') 每个不同的 hall 一行，所以行数 = 不同食堂的个数。"},
+ {l:'g', pts:3, k:'mc', t:['causality'], q:'Crossroads lunches have the largest total leftover kilograms. Which conclusion is most justified?', c:['Crossroads lunches waste the most food in total, but this may simply be because they serve the most plates; per-plate waste should be compared.','Crossroads cooks the least tasty food.','Serving lunch causes more waste than serving dinner.','Crossroads should close at lunch.'], a:0,
+  e:'总量受供餐规模影响，要比较“每盘剩多少”才公平。另外这是观察性数据，不能推出“难吃”或“午餐导致浪费”这类因果结论。'},
+ ]},
+
+{id:'cs-lottery', k:'case', d:2, title:'Concert Ticket Lottery', t:['probability','iteration','sampling'],
+ bg:'A free campus concert has 600 seats. Exactly 2,400 students enter a ticket lottery, and 600 winners are drawn uniformly at random WITHOUT replacement. Maya and three of her friends each entered once. Of the 2,400 entrants, 25% are seniors.',
+ bgzh:'免费校园演唱会 600 个座位，2,400 人参加抽签，随机不放回抽出 600 人。Maya 和三个朋友各报名一次。报名者中 25% 是大四学生。',
+ table:{cols:['id','name','year'], rows:[['0','Maya','Junior'],['1','Leo','Junior'],['2','Ana','Senior'],['3','Kai','Sophomore'],['4','Rhea','Senior']], more:2395},
+ cols:['id (int): entry number from 0 to 2399 (Maya and her friends are ids 0–3)','name (str): entrant name','year (str): class year'],
+ parts:[
+ {l:'a', pts:2, k:'mc', q:'What is the chance that Maya wins a ticket?', c:['1/4','1/600','1/2400','600/1800'], a:0, e:'600 / 2400 = 1/4，每个人被抽中的机会相同。'},
+ {l:'b', pts:3, k:'mc', q:'What is the chance that BOTH Maya and Leo win?', c:['(600/2400) × (599/2399)','(1/4)²','2 × (1/4)','1/4 + 1/4'], a:0,
+  e:'不放回抽样：Maya 中了以后，剩下 2,399 人中还有 599 个名额。乘法法则 P(A)P(B|A)。(1/4)² 是有放回时的答案，这里只是近似。'},
+ {l:'c', pts:3, k:'mc', q:'Treating the four friends\' outcomes as independent, each with chance 1/4, which expression approximates the chance that AT LEAST ONE of the four wins?', c:['1 − (3/4)⁴','4 × (1/4)','(1/4)⁴','1 − (1/4)⁴'], a:0,
+  e:'至少一个 = 1 − 一个都没中 = 1 − (3/4)⁴ ≈ 0.68。4 × 1/4 = 1 显然不对。'},
+ {l:'d', pts:4, k:'code', t:['iteration','sampling'], q:'entrants is a one-column table with column id containing np.arange(2400). Complete the code to simulate ONE lottery and count how many of the four friends (ids 0–3) win.', code:"winners = entrants.sample([A]).column('id')\nfriends_won = np.count_nonzero([B])",
+  blanks:[{l:'A', acc:['600,with_replacement=False']},{l:'B', acc:['winners<4','winners<=3']}],
+  e:'抽 600 个且不放回；朋友的编号是 0–3，所以 winners < 4 的个数就是中签的朋友数。'},
+ {l:'e', pts:2, k:'tf', t:['sampling'], q:'True or False: Repeating the simulation 100,000 times instead of 1,000 times makes the empirical distribution of friends_won likely to be closer to its probability distribution.', a:true,
+  e:'True。这是 law of averages：重复次数越多，经验分布越接近理论概率分布。'},
+ {l:'f', pts:3, k:'mc', t:['hyptest','models'], q:'Among the 600 winners, 180 (30%) are seniors. Which is an appropriate NULL hypothesis for testing whether the lottery favored seniors?', c:['The winners are a uniform random sample (without replacement) of the entrants; the difference between 30% and 25% is due to chance.','Seniors were more likely to win than other students.','30% of all entrants are seniors.','The 600 winners contain exactly 150 seniors.'], a:0,
+  e:'零假设是“抽签是公平随机的”这个可以模拟的模型。B 是备择；C 与已知事实矛盾；D 是关于样本的，而样本里明明是 180 人。'},
+ {l:'g', pts:3, k:'mc', t:['sampling'], q:'Which statement about 25% and 30% is correct?', c:['25% (seniors among all entrants) is a parameter; 30% (seniors among the winners) is a statistic.','Both are parameters.','25% is a statistic; 30% is a parameter.','Both are statistics.'], a:0,
+  e:'2,400 名报名者是这里的总体，25% 描述总体 → parameter；30% 是由 600 人的样本算出的 → statistic，换一次抽签就会变。'},
+ ]},
+
+{id:'cs-library', k:'case', d:3, title:'Library Late Returns', t:['models','hyptest','iteration'],
+ bg:'The library claims that late returns fall into four categories in these proportions: Books 0.55, Laptops 0.10, Chargers 0.15, Room keys 0.20. A student auditor selects 400 late returns at random from this semester\'s records and finds the proportions Books 0.48, Laptops 0.17, Chargers 0.15, Room keys 0.20.',
+ bgzh:'图书馆声称逾期归还物品按四类比例分布（书 0.55、笔记本电脑 0.10、充电器 0.15、房间钥匙 0.20）。学生随机抽查 400 条逾期记录，观察到的比例是 0.48、0.17、0.15、0.20。',
+ code:'model = make_array(0.55, 0.10, 0.15, 0.20)\nobserved = make_array(0.48, 0.17, 0.15, 0.20)',
+ parts:[
+ {l:'a', pts:3, k:'multi', q:'Select ALL correct statements of the null hypothesis.', c:['The 400 late returns are like a random sample from a population with category proportions 0.55, 0.10, 0.15, 0.20; differences from these are due to chance.','The observed proportions equal the model proportions.','Each late return independently falls into the four categories with chances 0.55, 0.10, 0.15, 0.20.','Each late return independently falls into the four categories with chances 0.48, 0.17, 0.15, 0.20.','Laptops are returned late more often than the library claims.'], a:[0,2],
+  e:'零假设是可以模拟的机会模型，用的是“图书馆声称”的比例（A、C）。B 是关于样本的说法，而样本显然不相等；D 用了观测比例；E 是备择方向。'},
+ {l:'b', pts:2, k:'mc', q:'With TVD as the test statistic, which is the appropriate alternative hypothesis?', c:["The distribution of late returns across categories is different from the library's model.","The sample proportions differ from the model proportions.","Laptops are returned late more often than 10% of the time.","The library's model is correct."], a:0,
+  e:'TVD 不带方向，对应“分布不同”的备择。B 说的是样本（这显然成立，不需要检验）；C 是单方向的说法，和 TVD 不匹配；D 是零假设。'},
+ {l:'c', pts:3, k:'code', q:'Write an expression for the observed value of the test statistic.', code:'obs_tvd = [A]', blanks:[{l:'A', acc:['sum(abs(observed-model))/2','np.sum(np.abs(observed-model))/2','sum(np.abs(observed-model))/2','0.5*sum(abs(observed-model))']}],
+  e:'TVD = ½ × Σ|observed − model|。'},
+ {l:'d', pts:2, k:'mc', q:'What is the value of obs_tvd?', c:['0.07','0.14','0','0.035'], a:0, fixed:true, e:'|−0.07| + |0.07| + 0 + 0 = 0.14，乘 ½ 得 0.07。'},
+ {l:'e', pts:4, k:'code', t:['iteration','models'], q:'Complete simulate_one so it returns one simulated TVD under the null hypothesis.', code:'def simulate_one():\n    sim = [A]\n    return [B]',
+  blanks:[{l:'A', acc:['sample_proportions(400,model)']},{l:'B', acc:['sum(abs(sim-model))/2','np.sum(np.abs(sim-model))/2','sum(np.abs(sim-model))/2','0.5*sum(abs(sim-model))']}],
+  e:'在零假设下用 model 的比例模拟 400 条记录，再和 model 比较算 TVD。注意比较的对象是 model，不是 observed。'},
+ {l:'f', pts:3, k:'code', q:'tvds is an array of 10,000 simulated TVDs. Write an expression for the p-value.', code:'p_value = [A]', blanks:[{l:'A', acc:['np.mean(tvds>=obs_tvd)','np.count_nonzero(tvds>=obs_tvd)/10000','np.count_nonzero(tvds>=obs_tvd)/len(tvds)','np.average(tvds>=obs_tvd)','sum(tvds>=obs_tvd)/len(tvds)']}],
+  e:'TVD 越大越支持备择，所以 p 值 = 模拟 TVD ≥ 观测值的比例（包括等号）。'},
+ {l:'g', pts:3, k:'mc', q:'The p-value is 0.0004. Using a 1% cutoff, which conclusion is correct?', c:["Reject the null hypothesis; the data support the alternative that late returns are not distributed as the library claims.","Accept the alternative hypothesis; it is now proven.","There is a 0.04% chance that the library's model is correct.","Fail to reject the null hypothesis."], a:0,
+  e:'0.0004 < 0.01 → reject the null。不能说“证明”，也不能把 p 值当作模型正确的概率。'},
+ ]},
+);
+
+addCase(
+{id:'cs-sleep', k:'case', d:3, title:'Sleep App Experiment', t:['causality','abtest','hyptest'],
+ bg:'Researchers recruited 300 student volunteers. They randomly assigned 150 to use a new wind-down app every night for four weeks (App) and 150 to use a plain white-noise app (Control). For each volunteer they recorded the change in average nightly sleep, in minutes. The mean change was 21.4 minutes in the App group and 12.9 minutes in the Control group, a difference of 8.5 minutes.',
+ bgzh:'300 名志愿者被随机分成两组：一组用新的助眠 app，一组用普通白噪音 app（对照），记录四周后每晚睡眠分钟数的变化。App 组平均增加 21.4 分钟，对照组 12.9 分钟，差 8.5 分钟。',
+ table:{cols:['group','change'], rows:[['App','34.0'],['Control','-5.5'],['App','12.0'],['Control','20.5'],['Control','8.0']], more:295},
+ cols:["group (str): 'App' or 'Control'",'change (float): change in average nightly sleep (minutes)'],
+ parts:[
+ {l:'a', pts:2, k:'mc', t:['causality'], q:'Why did the researchers give the Control group a white-noise app rather than nothing at all?', c:['So that both groups use an app at night, separating the effect of the wind-down features from the effect of simply using an app or expecting to sleep better','To make the Control group larger','Because random assignment requires every subject to receive some app','To make the experiment double-blind for the researchers only'], a:0,
+  e:'这相当于 placebo：两组都“用了 app”，唯一差别是助眠功能本身，排除了心理预期等因素。'},
+ {l:'b', pts:3, k:'multi', t:['abtest','hyptest'], q:'Select ALL correct statements of the null hypothesis.', c:['The wind-down app has no effect on sleep; the difference between the groups is due to the random assignment.','Among these volunteers, the distribution of sleep change would be the same under either app.','The mean change is the same in the two samples.','The wind-down app increases nightly sleep.'], a:[0,1],
+  e:'零假设：app 没有效果，两组结果分布一样，看到的差异来自随机分组。C 说的是样本（样本均值明显不同）；D 是备择。'},
+ {l:'c', pts:2, k:'mc', t:['abtest'], q:'The alternative hypothesis is that the wind-down app INCREASES nightly sleep. Which test statistic is most appropriate?', c:['mean change (App) − mean change (Control)','|mean change (App) − mean change (Control)|','mean change (Control) − mean change (App), where large values favor the alternative','The TVD between the two groups'], a:0,
+  e:'单侧备择用带方向的统计量：App − Control 越大越支持备择。绝对值是双侧的；C 的方向写反了；TVD 用于类别分布。'},
+ {l:'d', pts:4, k:'code', t:['abtest'], q:'Complete the code that computes ONE simulated value of the statistic under the null hypothesis. (Note that "App" comes before "Control" alphabetically.)', code:"shuffled = sleep.sample([A]).column('group')\nsim_tbl = sleep.with_column('Shuffled', shuffled)\nmeans = sim_tbl.select([B]).group('Shuffled', np.mean).column('change mean')\nsim_stat = [C]",
+  blanks:[{l:'A', acc:['with_replacement=False']},{l:'B', acc:["'Shuffled','change'"]},{l:'C', acc:['means.item(0)-means.item(1)']}],
+  e:'置换：不放回打乱标签；只保留新标签和结果两列再 group；group 结果按字母排序，App 在前，所以 item(0) − item(1) 就是 App − Control。'},
+ {l:'e', pts:3, k:'code', t:['hyptest'], q:'sims is an array of 10,000 simulated statistics. Write an expression for the p-value.', code:'p_value = [A]', blanks:[{l:'A', acc:['np.mean(sims>=8.5)','np.count_nonzero(sims>=8.5)/10000','np.count_nonzero(sims>=8.5)/len(sims)','np.average(sims>=8.5)','sum(sims>=8.5)/len(sims)']}],
+  e:'方向是“App 更大”，所以算模拟值 ≥ 8.5 的比例。'},
+ {l:'f', pts:3, k:'mc', t:['hyptest','causality'], q:'The p-value is 0.012 and the cutoff is 5%. Which conclusion is best?', c:['Reject the null; because treatment was randomly assigned, the data support that the wind-down app caused more sleep, on average, for these volunteers.','There is an association, but we cannot say anything about causation.','The app increases sleep for every adult in the United States.','Fail to reject the null; the data are consistent with no effect.'], a:0,
+  e:'p < 0.05 → reject。随机分组的实验可以下因果结论（A）。但志愿者不是全美成年人的随机样本，所以不能直接推广到所有人（C 错）。'},
+ {l:'g', pts:3, k:'short', t:['causality','sampling'], q:'A news article says: "App adds 8.5 minutes of sleep for all college students." Explain one problem with this claim.',
+  a:'The subjects were volunteers, not a random sample of all college students, so the result may not generalize to all students. Also, 8.5 minutes is the difference in AVERAGE change in this experiment; it is an estimate with uncertainty, not a guaranteed effect for each student.',
+  p:['志愿者不是所有大学生的随机样本 → 不能直接推广','8.5 是这次实验的平均差异，有不确定性','不是每个学生都会增加 8.5 分钟'],
+  e:'因果结论成立的范围是“这批受试者”；推广到总体需要随机抽样。'},
+ ]},
+
+{id:'cs-rent', k:'case', d:2, title:'Off-Campus Rent Survey', t:['bootstrap','ci','normal'],
+ bg:'The student government surveys a simple random sample of 500 students who live off campus and records each student\'s monthly rent in dollars in the one-column table rents (column Rent). The sample median is $1,450, the sample mean is $1,520, and the sample SD is $410.',
+ bgzh:'学生会随机抽取 500 名校外住宿的学生，记录每月房租（表 rents，列 Rent）。样本中位数 1,450 美元，均值 1,520，标准差 410。',
+ table:{cols:['Rent'], rows:[['1325'],['1890'],['1100'],['2450'],['1475']], more:495},
+ cols:['Rent (int): monthly rent in dollars'],
+ parts:[
+ {l:'a', pts:2, k:'mc', t:['sampling','bootstrap'], q:'The survey team wants to estimate a parameter using the sample median. Which parameter?', c:['The median monthly rent of all students who live off campus','The median rent of the 500 surveyed students','The median of the bootstrap medians','The mean rent of all students'], a:0,
+  e:'parameter 描述总体：所有校外住宿学生的租金中位数。样本中位数是用来估计它的 statistic。'},
+ {l:'b', pts:4, k:'code', t:['bootstrap'], q:'Complete the code to bootstrap the median rent 5,000 times.', code:"medians = make_array()\nfor i in np.arange(5000):\n    resample = [A]\n    medians = np.append(medians, [B])",
+  blanks:[{l:'A', acc:['rents.sample()','rents.sample(500)','rents.sample(rents.num_rows)','rents.sample(with_replacement=True)']},{l:'B', acc:["np.median(resample.column('Rent'))","percentile(50,resample.column('Rent'))"]}],
+  e:'sample() 默认有放回、行数等于原表，正好是 bootstrap。每次算重抽样本的中位数。'},
+ {l:'c', pts:2, k:'code', t:['ci'], q:'Fill in the blanks to compute a 95% confidence interval.', code:'ci = make_array(percentile([A], medians), percentile([B], medians))', blanks:[{l:'A', acc:['2.5']},{l:'B', acc:['97.5']}],
+  e:'95% 区间去掉两侧各 2.5%。'},
+ {l:'d', pts:3, k:'multi', t:['ci','bootstrap'], q:'The interval is ($1,410, $1,495). Select ALL correct statements.', c:['We are 95% confident that the median rent of all off-campus students is between $1,410 and $1,495.','About 95% of off-campus students pay between $1,410 and $1,495.','If the survey and bootstrap were repeated many times, about 95% of the resulting intervals would contain the population median.','There is a 95% probability that the population median is between $1,410 and $1,495.','The bootstrap medians are centered near $1,450.'], a:[0,2,4],
+  e:'A、C 是正确解读；B 混淆了中位数和个体；D 把参数当成随机的；E ✓ bootstrap 分布中心在原样本统计量附近。'},
+ {l:'e', pts:3, k:'mc', t:['ci','hyptest'], q:'Last year the median rent was $1,500. Null: the median is still $1,500. Alternative: it has changed. What is the conclusion at the 5% cutoff?', c:['Reject the null, because $1,500 is not in the 95% confidence interval.','Fail to reject the null, because $1,500 is close to the interval.','Fail to reject, because the sample median is below $1,500.','We cannot use a confidence interval to test this.'], a:0,
+  e:'双侧检验：零假设的值不在 95% 区间里 → 5% cutoff 下拒绝。'},
+ {l:'f', pts:3, k:'mc', t:['normal','ci'], q:'Using the Central Limit Theorem, which is an approximate 95% confidence interval for the MEAN rent of all off-campus students?', c:['1520 ± 2 × 410/√500 ≈ ($1,483, $1,557)','1520 ± 2 × 410 = ($700, $2,340)','1450 ± 2 × 410/√500','1520 ± 410/500'], a:0,
+  e:'样本均值的 SD ≈ 样本 SD / √n = 410/√500 ≈ 18.3。均值 ± 2 个这样的 SD。B 用的是个体的 SD，那是描述个体的范围。'},
+ {l:'g', pts:3, k:'mc', t:['normal'], q:'Assuming the SD of rents is about $410, roughly how large a random sample is needed so that the 95% CI for the mean rent has total width at most $40?', c:['1,681','41','420','6,724'], a:0,
+  e:'宽度 ≈ 4 × SD/√n ≤ 40 → √n ≥ 4 × 410 / 40 = 41 → n ≥ 1,681。'},
+ ]},
+
+{id:'cs-boba', k:'case', d:2, title:'Boba Wait Times', t:['center','normal'],
+ bg:'A boba shop on Telegraph Avenue recorded the wait time, in minutes, for all 2,000 orders it took last month. The histogram of wait times is skewed to the right. The mean wait is 8 minutes, the SD is 3 minutes, and the median is 7 minutes.',
+ bgzh:'Telegraph 上一家奶茶店记录了上月全部 2,000 单的等待时间（分钟），分布右偏。均值 8 分钟，标准差 3 分钟，中位数 7 分钟。',
+ parts:[
+ {l:'a', pts:2, k:'mc', t:['center'], q:'Which is the best explanation for why the mean is larger than the median?', c:['A small number of very long waits pull the mean up, while the median is not affected much by them.','Most orders take longer than the mean.','The SD is larger than the median.','The median is always smaller than the mean.'], a:0,
+  e:'右偏长尾会把平均数往右拉；中位数对极端值不敏感。D 错：左偏时中位数大于均值。'},
+ {l:'b', pts:3, k:'mc', t:['center'], q:'At LEAST what percent of orders had wait times between 2 and 14 minutes?', c:['75%','95%','88.9%','68%'], a:0,
+  e:'2 和 14 是均值 ± 2 SD。分布不是正态 → 用 Chebyshev：至少 1 − 1/4 = 75%。'},
+ {l:'c', pts:2, k:'tf', t:['normal','center'], q:'True or False: We can conclude that about 95% of orders had wait times between 2 and 14 minutes.', a:false,
+  e:'False。95% 只适用于近似正态的分布。这里分布右偏，只能保证至少 75%。'},
+ {l:'d', pts:3, k:'mc', t:['center'], q:'An order waited 15 minutes. About how many SDs above average is that?', c:['2.33','7','5','1.4'], a:0, e:'(15 − 8) / 3 ≈ 2.33。'},
+ {l:'e', pts:3, k:'mc', t:['normal'], q:'The manager draws 36 orders at random with replacement and computes their mean wait. What is the SD of this sample mean?', c:['0.5 minutes','3 minutes','0.083 minutes','18 minutes'], a:0, e:'总体 SD / √n = 3 / 6 = 0.5。'},
+ {l:'f', pts:3, k:'mc', t:['normal'], q:'Approximately what is the chance that the sample mean of 36 orders is MORE than 9 minutes?', c:['About 2.5%','About 16%','About 5%','About 37%'], a:0,
+  e:'样本均值近似正态，中心 8、SD 0.5。9 分钟是 +2 SD，超过它的概率约 (100% − 95%) / 2 = 2.5%。'},
+ {l:'g', pts:4, k:'short', t:['normal'], q:'Explain why it is reasonable to use the normal curve in part (f) even though individual wait times are skewed.',
+  a:'By the Central Limit Theorem, the mean of a large random sample drawn with replacement has a roughly normal distribution regardless of the shape of the population. With n = 36, the sample mean is roughly normal, centered at 8 with SD 3/√36 = 0.5.',
+  p:['引用 Central Limit Theorem','前提：大样本、随机有放回抽样','是“样本均值的分布”近似正态，与总体形状无关','中心 8，SD = 3/√36 = 0.5'],
+  e:'个体右偏没关系，CLT 讲的是平均值。'},
+ ]},
+
+{id:'cs-study', k:'case', d:3, title:'Study Hours and Exam Scores', t:['correlation','regression','residuals','reginf'],
+ bg:'A statistics instructor collects data on 120 students in an observational study. Weekly study hours have mean 10 and SD 4. Final exam scores (percent) have mean 70 and SD 12. The correlation between study hours and score is r = 0.6. The scatter plot looks roughly linear.',
+ bgzh:'观察性研究：120 名学生每周学习时长（均值 10、SD 4）和期末成绩（均值 70、SD 12），相关系数 r = 0.6，散点图大致呈线性。',
+ table:{cols:['hours','score'], rows:[['12','81'],['6','58'],['15','77'],['9','73'],['3','49']], more:115},
+ cols:['hours (float): average weekly study hours','score (float): final exam score in percent'],
+ parts:[
+ {l:'a', pts:2, k:'mc', t:['regression'], q:'What is the slope of the regression line for predicting score from hours?', c:['1.8','0.2','0.6','3'], a:0, e:'slope = r × SDy / SDx = 0.6 × 12 / 4 = 1.8 percentage points per hour。'},
+ {l:'b', pts:2, k:'mc', t:['regression'], q:'What is the intercept of the regression line?', c:['52','70','61.8','58'], a:0, e:'intercept = 70 − 1.8 × 10 = 52。'},
+ {l:'c', pts:3, k:'mc', t:['regression'], q:'What is the predicted score for a student who studies 18 hours per week?', c:['84.4','94','82.4','76'], a:0,
+  e:'18 小时在标准单位下是 (18 − 10)/4 = 2；预测 = 0.6 × 2 = 1.2 SD → 70 + 1.2 × 12 = 84.4。直接用直线 52 + 1.8 × 18 = 84.4，结果一样。B 忘了乘 r。'},
+ {l:'d', pts:3, k:'mc', t:['residuals'], q:'What is the SD of the residuals?', c:['9.6','7.2','4.8','12'], a:0, e:'√(1 − 0.36) × 12 = 0.8 × 12 = 9.6。'},
+ {l:'e', pts:2, k:'mc', t:['residuals'], q:'The residual plot fans out: residuals are spread more widely for students who study many hours. What does this mean?', c:['Predictions are less accurate for students who study many hours.','The relation is not linear, so r must be 0.','The regression line overestimates every heavy studier.','Nothing; residual plots never matter.'], a:0,
+  e:'残差的离散程度随 x 变大 → heteroscedasticity，不同位置的预测准确度不同。'},
+ {l:'f', pts:3, k:'mc', t:['reginf'], q:'A 95% bootstrap confidence interval for the slope of the true line is (1.2, 2.4). Null: the true slope is 0. What is the conclusion at the 5% cutoff?', c:['Reject the null; the data are not consistent with a true slope of 0.','Fail to reject the null.','The true slope is definitely 1.8.','The test cannot be done with a confidence interval.'], a:0,
+  e:'0 不在区间内 → 拒绝“真实斜率为 0”。'},
+ {l:'g', pts:3, k:'short', t:['causality','correlation'], q:'Does this analysis show that studying more CAUSES higher exam scores? Explain.',
+  a:'No. This is an observational study: students chose how much to study. There may be confounding factors (for example prior math background or motivation) that affect both study hours and scores, so the association does not establish causation.',
+  p:['结论：不能推出因果','原因：observational study，学生自己决定学习时长','举出可能的 confounder（基础、动机、时间等）'],
+  e:'回归和显著的斜率只说明 association。'},
+ {l:'h', pts:2, k:'tf', t:['correlation'], q:'True or False: If study time were measured in minutes instead of hours, the correlation coefficient would change.', a:false,
+  e:'False。r 不受单位变化影响（线性变换后标准单位不变）。斜率会变，但 r 不变。'},
+ ]},
+);
+
+addCase(
+{id:'cs-plants', k:'case', d:3, title:'Tomato Blight Classifier', t:['classification','bayes'],
+ bg:'The campus garden club wants to flag tomato plants with blight early. For 200 plants they recorded two features and whether a plant expert later confirmed blight. 60 of the 200 plants (30%) had blight. They plan to use k-nearest neighbors.',
+ bgzh:'校园菜园俱乐部想提前识别番茄枯萎病。200 株植物记录了两个特征，以及专家后来确认的是否患病（30% 患病）。他们打算用 k-NN。',
+ table:{cols:['leaf_spots','yellow_pct','blight'], rows:[['3','12.5','0'],['8','61.0','1'],['1','4.0','0'],['6','40.5','1'],['2','35.0','0']], more:195},
+ cols:['leaf_spots (int): number of dark spots on the lowest leaf, from 0 to 10','yellow_pct (float): percent of leaf area that is yellow, from 0 to 100','blight (int): 1 if the plant had blight, 0 otherwise'],
+ parts:[
+ {l:'a', pts:3, k:'mc', q:'Why should the club convert both features to standard units before computing distances?', c:['yellow_pct ranges over much larger values than leaf_spots, so without standardizing it would dominate the distance.','Standard units make every distance an integer.','k-NN only works when all values are between 0 and 1.','Standardizing changes which plants have blight.'], a:0,
+  e:'不同尺度的特征，大尺度的会主导欧氏距离。标准单位让两个特征的影响可比。'},
+ {l:'b', pts:4, k:'code', q:'Complete the function that returns the Euclidean distance between two plants, given as arrays of their (standardized) feature values.', code:'def distance(p1, p2):\n    return [A]',
+  blanks:[{l:'A', acc:['np.sqrt(np.sum((p1-p2)**2))','np.sqrt(sum((p1-p2)**2))']}], e:'差 → 平方 → 求和 → 开根号。'},
+ {l:'c', pts:3, k:'code', q:"top_k is a table of the k nearest training plants (k is odd) with the column 'blight' (0 or 1). Fill in the blank so the prediction is 1 when most neighbors have blight and 0 otherwise.", code:'prediction = int([A])',
+  blanks:[{l:'A', acc:["np.mean(top_k.column('blight'))>0.5","np.average(top_k.column('blight'))>0.5","np.count_nonzero(top_k.column('blight'))>k/2","sum(top_k.column('blight'))>k/2"]}],
+  e:'标签是 0/1 时，平均值就是“患病邻居的比例”；超过 0.5 就说明多数是 1。int(True) = 1。'},
+ {l:'d', pts:2, k:'mc', q:'A 1-nearest-neighbor classifier gets 100% accuracy when evaluated on the 200 training plants. What is the best interpretation?', c:['This is expected and says little about new plants: each training plant\'s nearest neighbor is itself. Accuracy should be measured on a separate test set.','The classifier will be 100% accurate on new plants.','The features perfectly separate blighted plants.','k = 1 is always the best choice.'], a:0,
+  e:'在训练集上评估 1-NN，最近邻就是自己，准确率必然 100%，这是过拟合的典型情况。'},
+ {l:'e', pts:2, k:'tf', q:'True or False: With k = 199, the classifier predicts "no blight" for every new plant, no matter its features.', a:true,
+  e:'True。199 个邻居里最多 60 个患病，至少 139 个健康，多数票永远是 0。'},
+ {l:'f', pts:3, k:'mc', t:['bayes'], q:'In the whole garden, 30% of plants have blight. A quick leaf test is positive for 80% of blighted plants and 10% of healthy plants. A plant tests positive. What is the chance it has blight?', c:['0.24 / (0.24 + 0.07) ≈ 0.77','0.8','0.3','0.24'], a:0,
+  e:'患病且阳性 0.3 × 0.8 = 0.24；健康但阳性 0.7 × 0.1 = 0.07。后验 = 0.24 / 0.31 ≈ 0.77。'},
+ {l:'g', pts:3, k:'mc', t:['bayes'], q:'In a different garden only 5% of plants have blight (same test). A plant tests positive. What does a "more likely than not" classifier predict?', c:['Healthy, because P(blight | positive) = 0.04 / 0.135 ≈ 0.30 < 0.5','Blight, because the test is positive','Blight, because 80% > 50%','Healthy, because 5% < 50%'], a:0,
+  e:'0.05 × 0.8 = 0.04；0.95 × 0.1 = 0.095；后验 = 0.04 / 0.135 ≈ 0.30 < 0.5 → 预测健康。先验很小时，阳性也不一定代表更可能患病。D 的结论对但理由不完整（没用到证据）。'},
+ ]},
+
+{id:'cs-market', k:'case', d:2, title:'Farmers Market Vendors', t:['tables','groups','functions','viz'],
+ bg:'The Saturday farmers market keeps two tables. vendors has one row per vendor, and each vendor has exactly one stall. sales has one row per stall per week for 12 weeks. Every stall in sales appears in vendors.',
+ bgzh:'周六农贸市场有两张表：vendors 每个摊主一行（每人一个摊位号），sales 每个摊位每周一行，共 12 周。sales 里的摊位都能在 vendors 里找到。',
+ table:{cols:['name','category','stall'], rows:[['Sunny Acres','Produce','4'],['Rise Bakery','Bakery','11'],['Petal & Stem','Flowers','7'],['Green Row','Produce','2']], more:36},
+ cols:['vendors.name (str), vendors.category (str: Produce, Bakery, or Flowers), vendors.stall (int)','sales.stall (int), sales.week (int, 1–12), sales.revenue (float, dollars)'],
+ parts:[
+ {l:'a', pts:2, k:'mc', t:['groups'], q:"How many rows does vendors.join('stall', sales, 'stall') have?", c:['The same number of rows as sales','The same number of rows as vendors','vendors.num_rows × sales.num_rows','12'], a:0,
+  e:'sales 的每一行都恰好匹配到一个 vendor，所以结果行数 = sales 的行数。'},
+ {l:'b', pts:4, k:'code', t:['groups'], q:'Create a table with one row per category and the TOTAL revenue for that category over all 12 weeks.', code:"vendors.join([A]).select([B]).group([C])",
+  blanks:[{l:'A', acc:["'stall',sales","'stall',sales,'stall'"]},{l:'B', acc:["'category','revenue'"]},{l:'C', acc:["'category',sum","'category',np.sum"]}],
+  e:"先 join 把类别和收入放在一起；只留 category 和 revenue；按 category 分组求和。新列名是 'revenue sum'。"},
+ {l:'c', pts:3, k:'code', t:['tables'], q:'Let totals be the table from part (b). Complete the expression for the category with the highest total revenue.', code:"totals.sort([A]).column('category').item(0)",
+  blanks:[{l:'A', acc:["'revenue sum',descending=True"]}], e:"group 之后的列名是 'revenue sum'，降序排序后第一行就是最大的。"},
+ {l:'d', pts:3, k:'mc', t:['viz'], q:'You want to show how the TOTAL weekly revenue of the whole market changed over the 12 weeks. Which is most appropriate?', c:["sales.select('week', 'revenue').group('week', sum).plot('week')","sales.hist('revenue')","sales.barh('stall')","sales.scatter('stall', 'revenue')"], a:0,
+  e:'先按周求和得到每周总收入，再画随时间变化的 line plot。'},
+ {l:'e', pts:4, k:'code', t:['functions'], q:"Complete the function that labels a week's revenue as 'high' if it is at least 500 dollars and 'low' otherwise.", code:"def label(r):\n    if [A]:\n        return 'high'\n    return [B]",
+  blanks:[{l:'A', acc:['r>=500']},{l:'B', acc:["'low'"]}], e:'“at least 500” 是 >= 500。第一个 return 执行后函数就结束，所以不需要 else。'},
+ {l:'f', pts:2, k:'code', t:['functions'], q:"Write an expression that evaluates to an array of labels, one for each row of sales.", code:'labels = [A]', blanks:[{l:'A', acc:["sales.apply(label,'revenue')"]}],
+  e:"apply(函数名, 列名) 返回 array。"},
+ {l:'g', pts:2, k:'tf', t:['tables'], q:"True or False: Running vendors.join('stall', sales, 'stall') changes the vendors table so that it now includes revenue.", a:false,
+  e:'False。join 返回新表，vendors 本身不变。'},
+ ]},
+
+{id:'cs-ride', k:'case', d:3, title:'Rideshare Fares', t:['regression','residuals','classification'],
+ bg:'An analyst studies 5,000 rideshare trips in the East Bay to predict the fare. She randomly splits the trips into a table train (4,000 rows) and a table test (1,000 rows). Both have the same columns.',
+ bgzh:'分析 5,000 次东湾网约车行程来预测车费，随机分成 train（4,000 行）和 test（1,000 行）。',
+ table:{cols:['miles','minutes','surge','fare'], rows:[['3.2','14','0','12.80'],['7.9','25','1','34.10'],['1.1','6','0','7.25'],['12.4','31','0','29.95']], more:3996},
+ cols:['miles (float): trip distance','minutes (float): trip duration','surge (int): 1 if surge pricing was on, 0 otherwise','fare (float): fare in dollars'],
+ parts:[
+ {l:'a', pts:4, k:'code', t:['regression'], q:'Complete the function used to fit fare ≈ a·miles + b·minutes + c by least squares on the TRAINING set.', code:"def train_mse(a, b, c):\n    fitted = [A]\n    return [B]\n\nbest = minimize(train_mse)",
+  blanks:[{l:'A', acc:["a*train.column('miles')+b*train.column('minutes')+c"]},{l:'B', acc:["np.mean((train.column('fare')-fitted)**2)","np.mean((fitted-train.column('fare'))**2)","np.average((train.column('fare')-fitted)**2)"]}],
+  e:'预测值 = a·miles + b·minutes + c；返回均方误差。minimize 会找到让它最小的 a, b, c。'},
+ {l:'b', pts:3, k:'mc', t:['regression'], q:'What does minimize(train_mse) return?', c:['An array of the values of a, b, c that minimize the mean squared error on the training set','The smallest possible mean squared error','The fitted fares for the training set','The RMSE on the test set'], a:0,
+  e:'minimize 返回的是“让函数最小的参数”，不是最小值本身。'},
+ {l:'c', pts:3, k:'short', t:['regression'], q:'The fitted value of b is 0.42. Interpret b in one sentence.',
+  a:'Holding trip distance (miles) fixed, each additional minute of trip duration is associated with a predicted fare that is about $0.42 higher.',
+  p:['holding miles fixed（其他变量不变）','每多 1 分钟','预测车费高约 0.42 美元','用 associated / predicted，不说 causes'],
+  e:'多元回归系数一定要说“控制其他变量不变”。'},
+ {l:'d', pts:3, k:'mc', t:['classification','regression'], q:'The RMSE is $3.10 on train and $5.80 on test. Which statement is best?', c:['The test RMSE is the better estimate of how well the model will predict new trips; the gap suggests the model fits the training data better than new data.','The training RMSE is the better estimate of performance on new trips.','A lower training RMSE proves the model is correct.','The test set should be added to the training set before computing RMSE.'], a:0,
+  e:'模型没见过测试集，所以测试误差才能反映对新数据的表现。训练误差偏乐观。'},
+ {l:'e', pts:3, k:'mc', t:['residuals'], q:'For a simple regression of fare on miles alone, the residual plot shows a clear upside-down U shape. What does this suggest?', c:['The relationship between miles and fare is not linear, so a straight line is not the best model.','The regression line is the best possible model.','The correlation between miles and fare is negative.','The residuals average to a positive number.'], a:0,
+  e:'残差图有规律（弯曲）→ 非线性。残差的平均值仍然是 0（D 错）。'},
+ {l:'f', pts:4, k:'multi', t:['residuals'], q:'For that simple regression of fare on miles, select ALL statements that must be true.', c:['The residuals average to 0.','The correlation between the residuals and miles is 0.','The SD of the residuals equals √(1 − r²) × SD of fare.','Every surge trip has a positive residual.'], a:[0,1,2],
+  e:'前三条是回归线的代数性质，任何散点图都成立。D 不能保证。'},
+ ]},
+
+{id:'cs-survey', k:'case', d:2, title:'Course Evaluation Survey', t:['sampling','causality','bootstrap','ci'],
+ bg:'A large course has 1,200 students. The instructor first posts an optional online survey; 240 students respond. Then she selects 100 students uniformly at random without replacement and follows up with each one personally until they respond. The table srs holds the 100 random responses, with a column Rating from 1 to 5.',
+ bgzh:'一门 1,200 人的大课。老师先发了可选的线上问卷，240 人自愿回复；之后又随机不放回抽取 100 人，逐个跟进直到他们回复。表 srs 是这 100 个随机样本的评分（1–5）。',
+ table:{cols:['Rating','Section'], rows:[['5','101'],['3','104'],['4','102'],['4','107'],['2','101']], more:95},
+ cols:['Rating (int): overall rating from 1 to 5','Section (int): discussion section number'],
+ parts:[
+ {l:'a', pts:3, k:'mc', t:['sampling'], q:'Why might the 240 voluntary responses give a biased picture of the whole class?', c:['Students who chose to respond may differ systematically from those who did not (for example, those with strong opinions respond more).','240 is too small a number to calculate an average.','Online surveys always overestimate ratings.','The sample was drawn with replacement.'], a:0,
+  e:'自愿回复是 convenience / self-selected sample，不是概率样本，回应者和不回应者可能系统性不同。'},
+ {l:'b', pts:2, k:'mc', t:['sampling'], q:'What kind of sample is the group of 100 students?', c:['A simple random sample','A convenience sample','A census','A sample with replacement'], a:0, e:'无放回、每人机会相等 → simple random sample。'},
+ {l:'c', pts:3, k:'multi', t:['sampling'], q:'Select ALL of the following that are PARAMETERS.', c:['The average rating among all 1,200 students','The average rating among the 100 sampled students','The proportion of all 1,200 students who would rate the course 4 or higher','The median of the bootstrap statistics'], a:[0,2],
+  e:'描述全部 1,200 人的是 parameter；由样本或模拟算出来的是 statistic。'},
+ {l:'d', pts:4, k:'code', t:['bootstrap'], q:'Complete the code to bootstrap the PROPORTION of students who rate the course 4 or higher.', code:"props = make_array()\nfor i in np.arange(5000):\n    resample = [A]\n    props = np.append(props, [B])",
+  blanks:[{l:'A', acc:['srs.sample()','srs.sample(100)','srs.sample(srs.num_rows)','srs.sample(with_replacement=True)']},{l:'B', acc:["np.mean(resample.column('Rating')>=4)","np.average(resample.column('Rating')>=4)","np.count_nonzero(resample.column('Rating')>=4)/100","np.count_nonzero(resample.column('Rating')>=4)/resample.num_rows"]}],
+  e:'布尔数组的平均值就是比例。重抽要有放回、同样大小。'},
+ {l:'e', pts:4, k:'mc', t:['ci','hyptest'], q:'The 95% CI for the proportion rating 4 or higher is (0.61, 0.79). Last year the proportion was 0.82. Null: it is still 0.82. Alternative: it changed. Conclusion at the 5% cutoff?', c:['Reject the null; 0.82 is not in the interval.','Fail to reject the null; 0.82 is close to 0.79.','Accept the alternative; satisfaction certainly dropped by exactly 0.12.','We cannot test this with a confidence interval.'], a:0,
+  e:'0.82 不在 95% 区间里 → 拒绝。C 错在“accept”和“certainly / exactly”。'},
+ {l:'f', pts:4, k:'short', t:['causality'], q:'This year the instructor also switched to a new textbook. Can she conclude that the new textbook CAUSED the lower ratings? Explain.',
+  a:'No. The textbook was not randomly assigned; this year differs from last year in many ways (different students, TAs, schedule, etc.). These confounding factors could explain the drop, so only an association can be claimed.',
+  p:['结论：不能推出因果','原因：没有随机分配教材','今年和去年还有很多其他差别（学生、助教、时间…）都是 confounders'],
+  e:'前后对比（before/after）是观察性比较，不能排除混杂因素。'},
+ ]},
+);
+
 // Randomized templates: every call produces new numbers, so the same topic never runs dry.
 const R = {
   int: (a, b) => a + Math.floor(Math.random() * (b - a + 1)),
@@ -1449,7 +1807,8 @@ const GENS = [
 // ---------- state & storage ----------
 const $ = s => document.querySelector(s);
 const TOPIC = Object.fromEntries(TOPICS.map(t => [t.id, t]));
-const KIND = {mc:{zh:'单选', en:'Multiple choice'}, multi:{zh:'多选', en:'Select all'}, tf:{zh:'判断', en:'True / False'}, short:{zh:'简答', en:'Short answer'}, code:{zh:'代码填空', en:'Code'}};
+const KIND = {mc:{zh:'单选', en:'Multiple choice'}, multi:{zh:'多选', en:'Select all'}, tf:{zh:'判断', en:'True / False'}, short:{zh:'简答', en:'Short answer'}, code:{zh:'代码填空', en:'Code'}, case:{zh:'大题', en:'Case study'}};
+const PTS = {mc:2, multi:3, tf:2, short:4, code:4};
 const WEAK = ['hyptest', 'ci', 'bootstrap', 'abtest'];
 const store = {
   get(k, d) { try { const v = localStorage.getItem('c8lab:' + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
@@ -1458,31 +1817,39 @@ const store = {
 const S = {
   topics: new Set(store.get('topics', ['hyptest', 'ci', 'bootstrap'])),
   count: store.get('count', 10),
-  kinds: new Set(store.get('kinds', ['mc', 'multi', 'tf', 'short', 'code'])),
+  cases: store.get('cases', 1),
+  kinds: new Set(store.get('kinds', ['mc', 'multi', 'tf', 'short', 'code']).filter(k => PTS[k])),
   diff: store.get('diff', 'mixed'),
   mode: store.get('mode', 'practice'),
   src: 'bank',
-  exam: [], // prepared questions
+  exam: [],
   submitted: false, startedAt: 0, timer: null,
   sample: null, aiCtl: null,
 };
-const saveSettings = () => { store.set('topics', [...S.topics]); store.set('count', S.count); store.set('kinds', [...S.kinds]); store.set('diff', S.diff); store.set('mode', S.mode); };
+const saveSettings = () => { store.set('topics', [...S.topics]); store.set('count', S.count); store.set('cases', S.cases); store.set('kinds', [...S.kinds]); store.set('diff', S.diff); store.set('mode', S.mode); };
 
 // ---------- text helpers ----------
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[c]));
 const rich = s => esc(s).replace(/`([^`]+)`/g, '<code>$1</code>').replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
 const LETTERS = 'ABCDEFGH';
 const ANCHOR = /^(none of|all of|not enough|cannot be|neither)/i;
+const ptsOf = q => q.k === 'case' ? q.parts.reduce((s, p) => s + ptsOf(p), 0) : (q.pts || PTS[q.k] || 2);
+// Every answerable unit has a key: "3" for question 3, "3-1" for part (b) of case question 3.
+const getQ = key => { const [i, j] = String(key).split('-').map(Number); return j == null || isNaN(j) ? S.exam[i] : S.exam[i].parts[j]; };
+const units = () => S.exam.flatMap((q, i) => q.k === 'case' ? q.parts.map((p, j) => ({q: p, key: `${i}-${j}`, parent: q})) : [{q, key: String(i)}]);
+const unitScore = q => q.k === 'short' ? q.self : q.res?.score;
 
 // ---------- building an exam from the bank ----------
 function poolFor(topics, kinds, diff) {
   const okD = q => diff === 'mixed' || (diff === 'exam' ? q.d >= 2 : q.d >= 3);
   const statics = BANK.filter(q => q.t.some(t => topics.has(t)) && kinds.has(q.k) && okD(q));
   const gens = kinds.has('mc') ? GENS.filter(g => g.t.some(t => topics.has(t)) && (diff !== 'hard' || g.d >= 2)) : [];
-  return {statics, gens};
+  const cases = CASES.filter(c => c.t.some(t => topics.has(t)));
+  return {statics, gens, cases};
 }
 
 function shuffleChoices(q) {
+  if (q.k === 'case') return {...q, parts: q.parts.map(p => shuffleChoices({...p, t: p.t || q.t}))};
   if (!(q.k === 'mc' || q.k === 'multi') || q.fixed) return q;
   const idx = q.c.map((_, i) => i);
   const free = idx.filter(i => !ANCHOR.test(q.c[i])), tail = idx.filter(i => ANCHOR.test(q.c[i]));
@@ -1491,27 +1858,18 @@ function shuffleChoices(q) {
   const a = q.k === 'mc' ? order.indexOf(q.a) : q.a.map(x => order.indexOf(x)).sort((x, y) => x - y);
   return {...q, c, a};
 }
-// Generator output with a fixed list still needs its correct answer moved off position 0.
-function shuffleGen(q) {
-  if (q.k !== 'mc') return q;
-  if (!q.fixed) return shuffleChoices(q);
-  return q;
-}
 
-function buildExam() {
+function buildSingles() {
   const {statics, gens} = poolFor(S.topics, S.kinds, S.diff);
   const seen = new Set(store.get('seen', []));
   const byTopic = new Map([...S.topics].map(t => [t, []]));
-  // Fresh questions first, then ones seen recently; questions tagged with several chosen topics get a boost.
   const rank = q => (seen.has(q.id) ? 1 : 0) + Math.random() * 0.9 - (q.t.filter(t => S.topics.has(t)).length > 1 ? 0.3 : 0);
   for (const q of statics.slice().sort((a, b) => rank(a) - rank(b))) {
     const home = R.shuffle(q.t.filter(t => S.topics.has(t)))[0];
     byTopic.get(home).push({type:'static', q});
   }
   for (const g of gens) {
-    const home = R.pick(g.t.filter(t => S.topics.has(t)));
-    // Each template can appear up to twice; slot it in after a couple of fixed questions.
-    const list = byTopic.get(home);
+    const list = byTopic.get(R.pick(g.t.filter(t => S.topics.has(t))));
     list.splice(Math.min(list.length, R.int(1, 3)), 0, {type:'gen', g});
     list.push({type:'gen', g});
   }
@@ -1526,29 +1884,59 @@ function buildExam() {
         const item = list.shift();
         if (item.type === 'static') { if (used.has(item.q.id)) continue; used.add(item.q.id); out.push(shuffleChoices(item.q)); progressed = true; break; }
         const made = item.g.make();
-        out.push(shuffleGen({...made, id: item.g.id + '-' + Math.random().toString(36).slice(2, 7), t: item.g.t, d: item.g.d, gen: true}));
+        out.push(shuffleChoices({...made, id: item.g.id + '-' + Math.random().toString(36).slice(2, 7), t: item.g.t, d: item.g.d, gen: true}));
         progressed = true; break;
       }
     }
     if (!progressed) break;
   }
-  // Exam order: follow the syllabus, the way a real paper moves from earlier to later material.
   const pos = id => TOPICS.findIndex(t => t.id === id);
   out.sort((a, b) => Math.min(...a.t.map(pos)) - Math.min(...b.t.map(pos)));
-  store.set('seen', [...new Set([...out.map(q => q.id), ...seen])].slice(0, 400));
   return out;
 }
 
-// ---------- rendering questions ----------
+// A "True or False" block like the ones that open recent finals: 8 statements, 2 points each.
+function tfBlock(exclude) {
+  let pool = BANK.filter(q => q.k === 'tf' && q.t.some(t => S.topics.has(t)) && !exclude.has(q.id));
+  if (pool.length < 6) return null;
+  const parts = R.shuffle(pool).slice(0, 8).map((q, j) => ({...q, l: 'abcdefgh'[j], pts: 2}));
+  const t = [...new Set(parts.flatMap(p => p.t))];
+  return {id: 'tfb-' + Math.random().toString(36).slice(2, 7), k: 'case', d: 2, title: 'True or False', t,
+    bg: 'For each statement below, choose True or False. Each part is worth 2 points.', bgzh: '判断以下每个说法的对错，每小题 2 分。', parts};
+}
+
+function buildCases(n, singles) {
+  if (!n) return [];
+  const seen = new Set(store.get('seen', []));
+  const overlap = c => c.t.filter(t => S.topics.has(t)).length / c.t.length;
+  const ranked = poolFor(S.topics, S.kinds, S.diff).cases
+    .map(c => ({c, r: (seen.has(c.id) ? 1 : 0) + Math.random() * 0.6 - overlap(c)}))
+    .sort((a, b) => a.r - b.r).map(x => x.c);
+  const out = ranked.slice(0, n).map(c => shuffleChoices(c));
+  if (out.length < n) { const b = tfBlock(new Set(singles.map(q => q.id))); if (b) out.unshift(b); }
+  return out;
+}
+
+function buildExam() {
+  const singles = buildSingles();
+  const cases = buildCases(S.cases, singles);
+  const all = [...singles, ...cases];
+  store.set('seen', [...new Set([...all.map(q => q.id), ...store.get('seen', [])])].slice(0, 400));
+  return all;
+}
+
+// ---------- rendering ----------
 function renderExam(title) {
   S.submitted = false;
-  S.exam.forEach(q => { q.res = null; q.self = null; q.ai = null; });
+  units().forEach(({q}) => { q.res = null; q.self = null; q.ai = null; });
   $('#paperTitle').textContent = title;
-  const kinds = {}; S.exam.forEach(q => kinds[q.k] = (kinds[q.k] || 0) + 1);
-  const topicNames = [...new Set(S.exam.flatMap(q => q.t))].filter(t => TOPIC[t]).map(t => TOPIC[t].en);
-  $('#paperMeta').innerHTML = `<span>${S.exam.length} 题 questions</span><span>${Object.entries(kinds).map(([k, n]) => `${KIND[k].zh} ${n}`).join(' · ')}</span><span>${S.mode === 'exam' ? '考试模式：交卷后统一批改' : '练习模式：每题可单独检查'}</span><span id="clock"></span>` +
+  const singles = S.exam.filter(q => q.k !== 'case'), cases = S.exam.filter(q => q.k === 'case');
+  const total = S.exam.reduce((s, q) => s + ptsOf(q), 0);
+  const kinds = {}; singles.forEach(q => kinds[q.k] = (kinds[q.k] || 0) + 1);
+  const topicNames = [...new Set(units().flatMap(u => u.q.t || u.parent.t))].filter(t => TOPIC[t]).map(t => TOPIC[t].en);
+  $('#paperMeta').innerHTML = `<span>${S.exam.length} 题 · 共 ${total} 分</span><span>${Object.entries(kinds).map(([k, n]) => `${KIND[k].zh} ${n}`).join(' · ')}${cases.length ? ` · 大题 ${cases.length}` : ''}</span><span>${S.mode === 'exam' ? '考试模式：交卷后统一批改' : '练习模式：每题可单独检查'}</span><span id="clock"></span>` +
     `<span style="flex-basis:100%">${esc(topicNames.join(' · '))}</span>`;
-  $('#questions').innerHTML = S.exam.length ? S.exam.map((q, i) => renderQ(q, i)).join('') :
+  $('#questions').innerHTML = S.exam.length ? S.exam.map((q, i) => q.k === 'case' ? renderCase(q, i) : renderQ(q, i)).join('') :
     `<div class="empty">当前组合没有可用的题目。换几个知识点或题型试试。<br>No questions match. Try other topics or types.</div>`;
   $('#submitBar').hidden = !S.exam.length;
   $('#results').hidden = true; $('#results').innerHTML = '';
@@ -1559,38 +1947,62 @@ function renderExam(title) {
   updateAnswered();
 }
 
-function renderQ(q, i) {
-  const tags = q.t.filter(t => TOPIC[t]).map(t => `<span class="tag">${esc(TOPIC[t].zh)}</span>`).join('');
-  const d = '●'.repeat(q.d || 2) + '○'.repeat(3 - (q.d || 2));
-  let body = '';
+function bodyHTML(q, key) {
   if (q.k === 'mc' || q.k === 'multi' || q.k === 'tf') {
     const c = q.k === 'tf' ? ['True', 'False'] : q.c;
     const type = q.k === 'multi' ? 'checkbox' : 'radio';
-    body = `<div class="opts" role="${q.k === 'multi' ? 'group' : 'radiogroup'}">` + c.map((txt, j) =>
-      `<label class="opt" data-j="${j}"><input type="${type}" name="q${i}" id="q${i}o${j}" value="${j}"><span class="bub ${q.k === 'multi' ? 's' : 'c'}">${LETTERS[j]}</span><span class="txt">${rich(txt)}</span></label>`).join('') + `</div>`;
-  } else if (q.k === 'code') {
-    body = `<div class="blanks">` + q.blanks.map((b, j) => `<div class="blank"><label for="q${i}b${j}">${b.l === 'output' ? 'output' : '[' + esc(b.l) + ']'}</label><input id="q${i}b${j}" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${b.l === 'output' ? 'value' : 'code for blank ' + esc(b.l)}"></div>`).join('') + `</div>`;
-  } else {
-    body = `<textarea id="q${i}t" placeholder="用英文或中文作答都可以。Answer in English or Chinese."></textarea>`;
+    return `<div class="opts" role="${q.k === 'multi' ? 'group' : 'radiogroup'}">` + c.map((txt, j) =>
+      `<label class="opt" data-j="${j}"><input type="${type}" name="q${key}" id="q${key}o${j}" value="${j}"><span class="bub ${q.k === 'multi' ? 's' : 'c'}">${LETTERS[j]}</span><span class="txt">${rich(txt)}</span></label>`).join('') + `</div>`;
   }
+  if (q.k === 'code') return `<div class="blanks">` + q.blanks.map((b, j) => `<div class="blank"><label for="q${key}b${j}">${b.l === 'output' ? 'output' : '[' + esc(b.l) + ']'}</label><input id="q${key}b${j}" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${b.l === 'output' ? 'value' : 'code for blank ' + esc(b.l)}"></div>`).join('') + `</div>`;
+  return `<textarea id="q${key}t" placeholder="用英文或中文作答都可以。Answer in English or Chinese."></textarea>`;
+}
+const actionsHTML = key => `<div class="q-actions">${S.mode === 'practice' ? `<button class="ghost" data-check="${key}">检查 Check</button>` : ''}<span class="verdict" id="v${key}"></span></div><div id="ex${key}"></div>`;
+
+function renderQ(q, i) {
+  const tags = q.t.filter(t => TOPIC[t]).map(t => `<span class="tag">${esc(TOPIC[t].zh)}</span>`).join('');
+  const d = '●'.repeat(q.d || 2) + '○'.repeat(3 - (q.d || 2));
   return `<article class="q" id="qcard${i}" data-i="${i}">
-    <div class="q-head"><span class="q-num">${i + 1}.</span><span class="tag kind">${KIND[q.k].zh} · ${KIND[q.k].en}</span>${q.ai ? '' : ''}${q.fromAI ? '<span class="tag ai">Claude 生成</span>' : ''}${q.gen ? '<span class="tag">随机数值</span>' : ''}${tags}<span class="diff" title="difficulty">${d}</span></div>
+    <div class="q-head"><span class="q-num">${i + 1}.</span><span class="tag kind">${KIND[q.k].zh} · ${KIND[q.k].en}</span><span class="tag pts">${ptsOf(q)} pts</span>${q.fromAI ? '<span class="tag ai">Claude 生成</span>' : ''}${q.gen ? '<span class="tag">随机数值</span>' : ''}${tags}<span class="diff" title="difficulty">${d}</span></div>
     <div class="stem">${rich(q.q)}</div>
     ${q.code ? `<pre class="code">${esc(q.code)}</pre>` : ''}
-    ${body}
-    <div class="q-actions">${S.mode === 'practice' ? `<button class="ghost" data-check="${i}">检查 Check</button>` : ''}<span class="verdict" id="v${i}"></span></div>
-    <div id="ex${i}"></div>
+    ${bodyHTML(q, String(i))}
+    ${actionsHTML(String(i))}
+  </article>`;
+}
+
+function renderCase(q, i) {
+  const tags = q.t.filter(t => TOPIC[t]).map(t => `<span class="tag">${esc(TOPIC[t].zh)}</span>`).join('');
+  const table = q.table ? `<div class="tbl"><table><thead><tr>${q.table.cols.map(c => `<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>${q.table.rows.map(r => `<tr>${r.map(v => `<td>${esc(v)}</td>`).join('')}</tr>`).join('')}</tbody></table>${q.table.more ? `<div class="more">… (${Number(q.table.more).toLocaleString('en-US')} rows omitted)</div>` : ''}</div>` : '';
+  const cols = q.cols ? `<ul class="cols">${q.cols.map(c => `<li>${rich(c)}</li>`).join('')}</ul>` : '';
+  const parts = q.parts.map((p, j) => {
+    const key = `${i}-${j}`;
+    return `<div class="part" id="qcard${key}">
+      <div class="part-head"><span class="part-l">(${esc(p.l || 'abcdefghij'[j])})</span><span class="tag pts">${ptsOf(p)} pts</span><span class="tag kind">${KIND[p.k].zh}</span>${p.note ? `<span class="hint">${esc(p.note)}</span>` : ''}</div>
+      <div class="stem">${rich(p.q)}</div>
+      ${p.code ? `<pre class="code">${esc(p.code)}</pre>` : ''}
+      ${bodyHTML(p, key)}
+      ${actionsHTML(key)}
+    </div>`;
+  }).join('');
+  return `<article class="q case" id="qcard${i}" data-i="${i}">
+    <div class="q-head"><span class="q-num">${i + 1}.</span><span class="tag kind">大题 · Case study</span><span class="tag pts">${ptsOf(q)} pts</span>${q.fromAI ? '<span class="tag ai">Claude 生成</span>' : ''}${tags}<span class="case-score" id="cs${i}"></span></div>
+    <h3 class="case-title">${esc(q.title)}</h3>
+    <div class="bgbox"><div class="stem">${rich(q.bg)}</div>${q.bgzh ? `<details><summary>中文背景提示</summary><p>${rich(q.bgzh)}</p></details>` : ''}</div>
+    ${table}${cols}
+    ${q.code ? `<pre class="code">${esc(q.code)}</pre>` : ''}
+    <div class="parts">${parts}</div>
   </article>`;
 }
 
 function updateAnswered() {
-  const n = S.exam.filter((q, i) => isAnswered(q, i)).length;
+  const n = S.exam.filter((q, i) => q.k === 'case' ? q.parts.some((p, j) => isAnswered(p, `${i}-${j}`)) : isAnswered(q, String(i))).length;
   $('#answeredInfo').textContent = S.exam.length ? `已作答 ${n} / ${S.exam.length}` : '';
 }
-function isAnswered(q, i) {
-  if (q.k === 'code') return q.blanks.some((_, j) => ($('#q' + i + 'b' + j)?.value || '').trim());
-  if (q.k === 'short') return ($('#q' + i + 't')?.value || '').trim().length > 0;
-  return !!document.querySelector(`input[name="q${i}"]:checked`);
+function isAnswered(q, key) {
+  if (q.k === 'code') return q.blanks.some((_, j) => (document.getElementById(`q${key}b${j}`)?.value || '').trim());
+  if (q.k === 'short') return (document.getElementById(`q${key}t`)?.value || '').trim().length > 0;
+  return !!document.querySelector(`input[name="q${key}"]:checked`);
 }
 
 // ---------- grading ----------
@@ -1602,107 +2014,134 @@ function blankOk(input, b, loose) {
   return b.acc.some(a => {
     const t = loose ? loosen(a) : norm(a);
     if (v === t) return true;
-    if (loose && !isNaN(parseFloat(v)) && !isNaN(parseFloat(t)) && /^[-\d.e]+$/.test(v) && Math.abs(parseFloat(v) - parseFloat(t)) < 1e-9) return true;
-    if (/^\d+\/\d+$/.test(v) && loose) { const [x, y] = v.split('/').map(Number); return Math.abs(x / y - parseFloat(t)) < 1e-9; }
+    if (loose && /^[-\d.e]+$/.test(v) && !isNaN(parseFloat(t)) && Math.abs(parseFloat(v) - parseFloat(t)) < 1e-9) return true;
+    if (loose && /^\d+\/\d+$/.test(v)) { const [x, y] = v.split('/').map(Number); return Math.abs(x / y - parseFloat(t)) < 1e-9; }
     return false;
   });
 }
-function grade(q, i) {
+const el = id => document.getElementById(id);
+function grade(q, key) {
   if (q.k === 'mc' || q.k === 'tf') {
-    const el = document.querySelector(`input[name="q${i}"]:checked`);
-    const pick = el ? +el.value : -1; const right = q.k === 'tf' ? (q.a ? 0 : 1) : q.a;
+    const c = document.querySelector(`input[name="q${key}"]:checked`);
+    const pick = c ? +c.value : -1; const right = q.k === 'tf' ? (q.a ? 0 : 1) : q.a;
     return {score: pick === right ? 1 : 0, pick: [pick], right: [right]};
   }
   if (q.k === 'multi') {
-    const picks = [...document.querySelectorAll(`input[name="q${i}"]:checked`)].map(e => +e.value);
+    const picks = [...document.querySelectorAll(`input[name="q${key}"]:checked`)].map(e => +e.value);
     const hits = picks.filter(p => q.a.includes(p)).length, wrong = picks.length - hits;
     const exact = hits === q.a.length && wrong === 0;
     return {score: exact ? 1 : Math.max(0, (hits - wrong) / q.a.length) * 0.5, pick: picks, right: q.a, exact};
   }
   if (q.k === 'code') {
-    const oks = q.blanks.map((b, j) => blankOk($('#q' + i + 'b' + j).value, b, q.loose));
+    const oks = q.blanks.map((b, j) => blankOk(el(`q${key}b${j}`).value, b, q.loose));
     return {score: oks.filter(Boolean).length / oks.length, oks};
   }
   return {score: q.self == null ? null : q.self};
 }
 
-function showResult(i) {
-  const q = S.exam[i]; const card = $('#qcard' + i);
-  q.res = grade(q, i);
-  card.querySelectorAll('input, textarea').forEach(el => { if (el.type !== 'text' || q.k !== 'code') el.disabled = true; else el.readOnly = true; });
-  card.querySelector('[data-check]')?.remove();
+function showResult(key) {
+  key = String(key);
+  const q = getQ(key); const card = el('qcard' + key);
+  if (!q || !card) return;
+  q.res = grade(q, key);
+  card.querySelectorAll(':scope > .opts input, :scope > .blanks input, :scope > textarea').forEach(e => { if (q.k === 'code') e.readOnly = true; else e.disabled = true; });
+  card.querySelector(':scope > .q-actions [data-check]')?.remove();
   if (q.k === 'mc' || q.k === 'tf' || q.k === 'multi') {
-    card.querySelectorAll('.opt').forEach(o => {
+    card.querySelectorAll(':scope > .opts .opt').forEach(o => {
       const j = +o.dataset.j;
       if (q.res.right.includes(j)) o.classList.add('is-right');
       else if (q.res.pick.includes(j)) o.classList.add('is-wrong');
     });
   }
-  if (q.k === 'code') q.res.oks.forEach((ok, j) => $('#q' + i + 'b' + j).classList.add(ok ? 'ok' : 'no'));
-  paintVerdict(i);
-  $('#ex' + i).innerHTML = explainHTML(q, i);
-  if (q.k !== 'short' && q.res.score < 1) addMistake(q);
+  if (q.k === 'code') q.res.oks.forEach((ok, j) => el(`q${key}b${j}`).classList.add(ok ? 'ok' : 'no'));
+  paintVerdict(key);
+  el('ex' + key).innerHTML = explainHTML(q, key);
+  afterScore(key);
 }
-function paintVerdict(i) {
-  const q = S.exam[i], v = $('#v' + i), s = q.k === 'short' ? q.self : q.res?.score;
+// Keeps the mistake book and the case total in sync whenever a unit's score changes.
+function afterScore(key) {
+  const [i, j] = String(key).split('-');
+  const top = S.exam[+i];
+  if (j != null) paintCase(+i);
+  const scores = top.k === 'case' ? top.parts.map(unitScore) : [unitScore(top)];
+  if (scores.some(s => s != null && s < 1)) addMistake(top);
+  else if (scores.every(s => s != null && s >= 1)) dropMistake(top.id);
+  if (S.submitted) renderResults();
+}
+function paintCase(i) {
+  const q = S.exam[i]; const done = q.parts.filter(p => unitScore(p) != null);
+  if (!done.length) return;
+  const got = done.reduce((s, p) => s + unitScore(p) * ptsOf(p), 0);
+  el('cs' + i).textContent = `${fmt(got, 1)} / ${ptsOf(q)} pts${done.length < q.parts.length ? '（部分已批改）' : ''}`;
+}
+function paintVerdict(key) {
+  const q = getQ(key), v = el('v' + key), s = unitScore(q);
   if (s == null) { v.className = 'verdict'; v.textContent = q.k === 'short' ? '对照参考答案给自己打分 →' : ''; return; }
   v.className = 'verdict ' + (s >= 1 ? 'good' : s > 0 ? 'part' : 'bad');
-  v.textContent = s >= 1 ? '✓ 正确 Correct' : s > 0 ? `◐ 部分正确 Partial (${Math.round(s * 100)}%)` : '✗ 错误 Incorrect';
+  const p = ptsOf(q);
+  v.textContent = (s >= 1 ? '✓ 正确 Correct' : s > 0 ? '◐ 部分正确 Partial' : '✗ 错误 Incorrect') + ` · ${fmt(s * p, 1)}/${p} pts`;
 }
-function explainHTML(q, i) {
+function explainHTML(q, key) {
   let ans = '';
   if (q.k === 'mc') ans = `正确答案：${LETTERS[q.a]}. ${rich(q.c[q.a])}`;
   else if (q.k === 'multi') ans = `正确答案：${q.a.map(j => LETTERS[j]).join(', ')}`;
   else if (q.k === 'tf') ans = `正确答案：${q.a ? 'True' : 'False'}`;
   else if (q.k === 'code') ans = '参考答案：' + q.blanks.map(b => `${b.l === 'output' ? '' : '[' + esc(b.l) + '] '}<code>${esc(b.acc[0])}</code>`).join('　');
-  const keys = q.p ? `<div><b>得分要点</b><ul>${q.p.map(p => `<li>${rich(p)}</li>`).join('')}</ul></div>` : '';
+  const keys = q.p && q.p.length ? `<div><b>得分要点</b><ul>${q.p.map(p => `<li>${rich(p)}</li>`).join('')}</ul></div>` : '';
   const model = q.k === 'short' ? `<div><b>参考答案 Model answer</b><br>${rich(q.a)}</div>` : '';
   const self = q.k === 'short' ? `<div class="selfgrade">自评 Self-grade:
-      <button class="ghost${q.self === 1 ? ' on' : ''}" data-self="${i}" data-v="1">答对了</button>
-      <button class="ghost${q.self === 0.5 ? ' on' : ''}" data-self="${i}" data-v="0.5">部分</button>
-      <button class="ghost${q.self === 0 ? ' on' : ''}" data-self="${i}" data-v="0">没答对</button>
-      ${S.sample ? `<button class="ghost" data-ai-grade="${i}">让 Claude 批改</button>` : ''}</div>` : '';
-  const override = q.k === 'code' && q.res.score < 1 ? `<div class="selfgrade">写法不同但等价？<button class="ghost" data-override="${i}">算我对 Mark correct</button></div>` : '';
+      <button class="ghost${q.self === 1 ? ' on' : ''}" data-self="${key}" data-v="1">答对了</button>
+      <button class="ghost${q.self === 0.5 ? ' on' : ''}" data-self="${key}" data-v="0.5">部分</button>
+      <button class="ghost${q.self === 0 ? ' on' : ''}" data-self="${key}" data-v="0">没答对</button>
+      ${S.sample ? `<button class="ghost" data-ai-grade="${key}">让 Claude 批改</button>` : ''}</div>` : '';
+  const override = q.k === 'code' && q.res && q.res.score < 1 ? `<div class="selfgrade">写法不同但等价？<button class="ghost" data-override="${key}">算我对 Mark correct</button></div>` : '';
   const ai = q.ai ? `<div class="ai-fb"><b>Claude 批改：</b>${rich(q.ai)}</div>` : '';
   return `<div class="explain"><div class="ans">${ans}</div>${model}${keys}<div>${rich(q.e || '')}</div>${self}${override}${ai}</div>`;
 }
 
 function submitAll() {
-  S.exam.forEach((q, i) => { if (!q.res) showResult(i); });
+  units().forEach(({q, key}) => { if (!q.res) showResult(key); });
   S.submitted = true; clearInterval(S.timer);
   renderResults();
   $('#results').scrollIntoView({behavior: 'smooth', block: 'start'});
 }
 function renderResults() {
-  const graded = S.exam.filter(q => (q.k === 'short' ? q.self : q.res?.score) != null);
-  const pending = S.exam.length - graded.length;
-  const pts = graded.reduce((s, q) => s + (q.k === 'short' ? q.self : q.res.score), 0);
+  const us = units();
+  const graded = us.filter(u => unitScore(u.q) != null);
+  const pending = us.filter(u => u.q.k === 'short' && u.q.self == null).length;
+  const got = graded.reduce((s, u) => s + unitScore(u.q) * ptsOf(u.q), 0);
+  const possible = graded.reduce((s, u) => s + ptsOf(u.q), 0);
   const per = {};
-  graded.forEach(q => q.t.forEach(t => { if (!TOPIC[t]) return; per[t] = per[t] || [0, 0]; per[t][0] += (q.k === 'short' ? q.self : q.res.score); per[t][1] += 1; }));
+  graded.forEach(u => (u.q.t || u.parent.t).forEach(t => { if (!TOPIC[t]) return; per[t] = per[t] || [0, 0]; per[t][0] += unitScore(u.q) * ptsOf(u.q); per[t][1] += ptsOf(u.q); }));
   const secs = Math.floor((Date.now() - S.startedAt) / 1000);
-  const wrong = S.exam.filter(q => { const s = q.k === 'short' ? q.self : q.res?.score; return s != null && s < 1; }).length;
+  const wrong = S.exam.filter((q, i) => (q.k === 'case' ? q.parts : [q]).some(p => { const s = unitScore(p); return s != null && s < 1; })).length;
   $('#results').hidden = false;
   $('#results').innerHTML = `
-    <div class="score"><b>${fmt(pts, 1)} / ${graded.length}</b><span>${graded.length ? Math.round(pts / graded.length * 100) : 0}% · 用时 ${Math.floor(secs / 60)} 分 ${secs % 60} 秒${pending ? ` · ${pending} 道简答题待自评` : ''}</span></div>
+    <div class="score"><b>${fmt(got, 1)} / ${possible}</b><span>分 points · ${possible ? Math.round(got / possible * 100) : 0}% · 用时 ${Math.floor(secs / 60)} 分 ${secs % 60} 秒${pending ? ` · ${pending} 道简答待自评（未计入）` : ''}</span></div>
     <div class="bars">${Object.entries(per).sort((a, b) => a[1][0] / a[1][1] - b[1][0] / b[1][1]).map(([t, [s, n]]) => `
       <div class="bar"><span>${esc(TOPIC[t].zh)} <span class="hint">${esc(TOPIC[t].en)}</span></span><span class="track"><span class="fill" style="width:${Math.round(s / n * 100)}%"></span></span><span class="v">${fmt(s, 1)}/${n}</span></div>`).join('')}</div>
-    <p class="hint">错题已自动加入错题本（简答题自评“部分/没答对”也会加入）。按正确率从低到高排列，最上面就是最该复习的知识点。</p>
+    <p class="hint">按得分率从低到高排列，最上面就是最该复习的知识点。有错的题（大题整题）已自动加入错题本。</p>
     <div class="q-actions"><button class="primary" data-act="again">再来一套 New set</button>${wrong ? `<button class="ghost" data-act="retry">只练这次的错题 (${wrong})</button>` : ''}<button class="ghost" data-act="kb">复习相关知识点</button></div>`;
 }
 
 // ---------- mistakes ----------
-function strip(q) { const {res, self, ai, ...rest} = q; return rest; }
+function strip(q) {
+  const {res, self, ai, ...rest} = q;
+  if (rest.parts) rest.parts = rest.parts.map(p => strip(p));
+  return rest;
+}
 function addMistake(q) {
   const list = store.get('mistakes', []).filter(m => m.id !== q.id);
   list.unshift({...strip(q), ts: Date.now()});
   store.set('mistakes', list.slice(0, 150));
   renderMistakes();
 }
+function dropMistake(id) { store.set('mistakes', store.get('mistakes', []).filter(m => m.id !== id)); renderMistakes(); }
 function renderMistakes() {
   const list = store.get('mistakes', []);
-  $('#mkHint').textContent = list.length ? `共 ${list.length} 道。重练时答对的题会自动从错题本移除。` : '还没有错题。做完一套题后，答错的题会出现在这里。';
+  $('#mkHint').textContent = list.length ? `共 ${list.length} 道。重练时全部答对的题会自动从错题本移除。` : '还没有错题。做完一套题后，答错的题会出现在这里。';
   $('#mkPractice').disabled = !list.length;
-  $('#mkList').innerHTML = list.map(q => `<div class="mk"><div class="meta"><span class="tag kind">${KIND[q.k].zh}</span> ${q.t.filter(t => TOPIC[t]).map(t => esc(TOPIC[t].zh)).join(' · ')} · ${new Date(q.ts).toLocaleDateString()}</div><div class="stem">${rich(q.q)}</div></div>`).join('');
+  $('#mkList').innerHTML = list.map(q => `<div class="mk"><div class="meta"><span class="tag kind">${KIND[q.k].zh}</span> ${q.t.filter(t => TOPIC[t]).map(t => esc(TOPIC[t].zh)).join(' · ')} · ${new Date(q.ts).toLocaleDateString()}</div><div class="stem">${q.k === 'case' ? '<b>' + esc(q.title) + '</b> — ' + rich(q.bg) : rich(q.q)}</div></div>`).join('');
 }
 
 // ---------- Claude: generate & grade ----------
@@ -1711,18 +2150,23 @@ function aiPrompt() {
   const kb = topics.map(t => `## ${t.id} — ${t.en} (${t.zh})\n` + (KB[t.id] || []).map(([term, en, , trap]) => `- ${term}: ${en}${trap ? ' [common mistake: ' + trap + ']' : ''}`).join('\n')).join('\n\n');
   const kinds = [...S.kinds];
   const ex = R.shuffle(BANK.filter(q => q.t.some(t => S.topics.has(t)))).slice(0, 3).map(q => JSON.stringify(strip(q)));
+  const exCase = JSON.stringify(strip(R.pick(CASES.filter(c => c.t.some(t => S.topics.has(t))).concat(CASES).slice(0, 4))));
   const diff = {mixed: 'a mix of warm-up (d=1) and exam-level (d=2) questions, plus a few hard ones (d=3)', exam: 'exam-level (d=2) and hard (d=3)', hard: 'hard (d=3): multi-step reasoning, subtle misconceptions'}[S.diff];
-  return `You write ORIGINAL practice questions for UC Berkeley Data C8 (Data 8, Foundations of Data Science), matching the style and difficulty of the course's 2023–2026 midterms and finals. Do not reproduce real exam questions; invent new scenarios (campus life, sports, health, transit, food, etc.).
+  const caseSpec = S.cases ? `
 
-Style of real Data 8 exams: short realistic scenarios; conceptual multiple-choice with plausible distractors built from common misconceptions (p-value as P(null true), "accept the null", CI as a probability about a fixed parameter, association vs causation, bootstrap with/without replacement, Chebyshev vs normal, regression to the mean); "select all that apply" questions; True/False about properties; choosing appropriate test statistics; fill-in-the-blank code using ONLY the datascience Table API and numpy as taught (Table methods: select, drop, where with are.*, sort, take, column, num_rows, with_column(s), relabeled, group, pivot, join, apply, sample, hist, scatter, plot, barh; functions: make_array, np.arange, np.append, np.random.choice, sample_proportions, percentile, np.mean, np.std, np.count_nonzero, minimize). Never use pandas, list comprehensions, or brackets for indexing.
+ALSO write exactly ${S.cases} CASE STUDIES ("big questions", about 20 points each), like the long multi-part questions on 2021–2026 Data 8 finals: a realistic background story (3–5 sentences, original scenario), usually a small table excerpt (4–5 rows plus "rows omitted"), a description of each column, then 5–8 parts labeled a, b, c... that build on the same scenario and COMBINE several of the chosen topics (e.g. a hypothesis test from null/alternative through test statistic, simulation code, p-value code, and conclusion; or regression from slope through residuals to inference and causation). Parts may be any of mc, multi, tf, short, code, each with "pts" (1–5) so the parts add up to about 20. Example case (format only):
+${exCase}` : '';
+  return `You write ORIGINAL practice questions for UC Berkeley Data C8 (Data 8, Foundations of Data Science), matching the style and difficulty of the course's 2021–2026 midterms and finals. Do not reproduce real exam questions; invent new scenarios (campus life, sports, health, transit, food, etc.).
+
+Style of real Data 8 exams: short realistic scenarios; conceptual multiple-choice with plausible distractors built from common misconceptions (p-value as P(null true), "accept the null", CI as a probability about a fixed parameter, association vs causation, bootstrap with/without replacement, Chebyshev vs normal, regression to the mean); "select all that apply" questions (e.g. "select all correct statements of the null hypothesis"); blocks of True/False statements about properties; choosing appropriate test statistics; fill-in-the-blank code using ONLY the datascience Table API and numpy as taught (Table methods: select, drop, where with are.*, sort, take, column, num_rows, with_column(s), relabeled, group, pivot, join, apply, sample, hist, scatter, plot, barh; functions: make_array, np.arange, np.append, np.random.choice, sample_proportions, percentile, np.mean, np.std, np.count_nonzero, minimize). Never use pandas, list comprehensions, or brackets for indexing.
 
 Topics to cover (use these ids in "t"; spread questions across them, and when several topics are chosen, write some questions that combine two topics):
 ${kb}
 
-Write exactly ${S.count} questions. Allowed kinds: ${kinds.join(', ')}. Difficulty: ${diff}. Emphasize definitions, interpretation, and conceptual reasoning; at most a quarter of questions should be "code".
+Write exactly ${S.count} single questions. Allowed kinds: ${kinds.join(', ')}. Difficulty: ${diff}. Emphasize definitions, interpretation, and conceptual reasoning; at most a quarter of single questions should be "code".${caseSpec}
 
-Return ONLY a JSON array. Each element:
-{"k": "mc"|"multi"|"tf"|"short"|"code", "t": ["topic id"], "d": 1|2|3,
+Return ONLY a JSON object: {"questions": [...], "cases": [...]}. Each question (and each case part) is:
+{"k": "mc"|"multi"|"tf"|"short"|"code", "t": ["topic id"], "d": 1|2|3, "pts": number (case parts only),
  "q": "stem in English (use backticks for inline code)",
  "code": "optional Python shown under the stem; for code questions put blanks as [A], [B]",
  "c": ["choice", ...]            // mc and multi only, 4-5 choices
@@ -1730,41 +2174,59 @@ Return ONLY a JSON array. Each element:
  "blanks": [{"l": "A", "acc": ["accepted answer", "equivalent alternative"]}]   // code only
  "p": ["得分要点 in Chinese"]     // short only, 2-4 grading key points
  "e": "explanation in simplified Chinese, plain and friendly, keeping English course terms (null hypothesis, p-value, bootstrap, confidence interval...). For multiple choice say why the wrong options are wrong."}
+Each case is: {"title": "short title", "t": ["topic ids"], "bg": "background in English", "bgzh": "one-sentence Chinese summary of the background", "table": {"cols": [...], "rows": [[...]], "more": number of omitted rows} (optional), "cols": ["column (type): description", ...] (optional), "code": "optional shared code" , "parts": [ {"l": "a", ...question fields...}, ... ]}
 
-Examples of the exact JSON format (from the app's own bank):
+Examples of single questions (format only):
 ${ex.join('\n')}`;
 }
-function validAI(x) {
-  if (!x || typeof x !== 'object' || !KIND[x.k] || typeof x.q !== 'string') return null;
+function validAI(x, inCase) {
+  if (!x || typeof x !== 'object' || !PTS[x.k] || typeof x.q !== 'string') return null;
   const t = (Array.isArray(x.t) ? x.t : [x.t]).filter(id => TOPIC[id]);
   const q = {id: 'ai-' + Math.random().toString(36).slice(2, 8), k: x.k, t: t.length ? t : [[...S.topics][0]], d: [1, 2, 3].includes(+x.d) ? +x.d : 2, q: x.q, e: String(x.e || ''), fromAI: true};
+  if (inCase) { q.l = String(x.l || '').slice(0, 2); q.pts = Math.max(1, Math.min(10, +x.pts || PTS[x.k])); }
   if (x.code) q.code = String(x.code);
-  if (x.k === 'mc') { if (!Array.isArray(x.c) || x.c.length < 2 || !Number.isInteger(x.a) || !x.c[x.a]) return null; q.c = x.c.map(String); q.a = x.a; }
-  if (x.k === 'multi') { if (!Array.isArray(x.c) || !Array.isArray(x.a) || !x.a.length || x.a.some(j => !Number.isInteger(j) || !x.c[j])) return null; q.c = x.c.map(String); q.a = [...new Set(x.a)].sort(); }
+  if (x.k === 'mc') { if (!Array.isArray(x.c) || x.c.length < 2 || !Number.isInteger(x.a) || x.c[x.a] == null) return null; q.c = x.c.map(String); q.a = x.a; }
+  if (x.k === 'multi') { if (!Array.isArray(x.c) || !Array.isArray(x.a) || !x.a.length || x.a.some(j => !Number.isInteger(j) || x.c[j] == null)) return null; q.c = x.c.map(String); q.a = [...new Set(x.a)].sort(); }
   if (x.k === 'tf') { if (typeof x.a !== 'boolean') return null; q.a = x.a; }
   if (x.k === 'short') { if (typeof x.a !== 'string') return null; q.a = x.a; q.p = Array.isArray(x.p) ? x.p.map(String) : []; }
   if (x.k === 'code') { if (!Array.isArray(x.blanks) || !x.blanks.length || x.blanks.some(b => !b || !Array.isArray(b.acc) || !b.acc.length)) return null; q.blanks = x.blanks.map(b => ({l: String(b.l || '?'), acc: b.acc.map(String)})); }
   return q;
 }
+function validCase(x) {
+  if (!x || typeof x !== 'object' || typeof x.bg !== 'string' || !Array.isArray(x.parts)) return null;
+  const parts = x.parts.map(p => validAI(p, true)).filter(Boolean);
+  if (parts.length < 2) return null;
+  parts.forEach((p, j) => { if (!p.l) p.l = 'abcdefghij'[j]; });
+  const t = (Array.isArray(x.t) ? x.t : []).filter(id => TOPIC[id]);
+  const c = {id: 'aic-' + Math.random().toString(36).slice(2, 8), k: 'case', d: 3, fromAI: true, title: String(x.title || 'Case Study'), t: t.length ? t : [...new Set(parts.flatMap(p => p.t))], bg: x.bg, parts};
+  if (x.bgzh) c.bgzh = String(x.bgzh);
+  if (x.code) c.code = String(x.code);
+  if (Array.isArray(x.cols)) c.cols = x.cols.map(String);
+  if (x.table && Array.isArray(x.table.cols) && Array.isArray(x.table.rows)) c.table = {cols: x.table.cols.map(String), rows: x.table.rows.filter(Array.isArray).slice(0, 8).map(r => r.map(String)), more: +x.table.more || 0};
+  return c;
+}
 function setStatus(html, err) { const s = $('#status'); s.hidden = !html; s.className = 'status' + (err ? ' err' : ''); s.innerHTML = html || ''; }
 
 async function generate() {
   if (!S.topics.size) { setStatus('先在左边至少选一个知识点。Pick at least one topic.', true); return; }
-  if (!S.kinds.size) { setStatus('至少选一种题型。Pick at least one question type.', true); return; }
+  if (!S.kinds.size && !S.cases) { setStatus('至少选一种题型或至少 1 道大题。', true); return; }
   saveSettings();
   const title = S.topics.size === 1 ? TOPIC[[...S.topics][0]].en : S.topics.size >= TOPICS.length ? 'Cumulative Practice Final' : `Practice Exam · ${S.topics.size} topics`;
   if (S.src === 'ai' && S.sample) {
     S.aiCtl?.abort(); const ctl = S.aiCtl = new AbortController();
     $('#genBtn').disabled = true;
-    setStatus(`Claude 正在出题（${S.count} 道），通常需要 30–90 秒… <button class="ghost" id="stopAI">停止 Stop</button>`);
+    setStatus(`Claude 正在出题（${S.count} 道小题${S.cases ? ` + ${S.cases} 道大题` : ''}），通常需要 1–3 分钟… <button class="ghost" id="stopAI">停止 Stop</button>`);
     $('#stopAI').onclick = () => ctl.abort();
     try {
-      const arr = await S.sample.json(aiPrompt(), {signal: ctl.signal, cache: false});
-      const qs = (Array.isArray(arr) ? arr : arr?.questions || []).map(validAI).filter(Boolean);
-      if (!qs.length) throw {code: 'invalid_json'};
-      let note = `Claude 生成了 ${qs.length} 道新题。AI 题目偶尔会有瑕疵，觉得答案不对可以对照“知识点”页核实。`;
-      if (qs.length < S.count) { const top = buildExam().slice(0, S.count - qs.length); qs.push(...top); note += ` 另从题库补了 ${top.length} 道。`; }
-      S.exam = qs.map(shuffleChoices);
+      const res = await S.sample.json(aiPrompt(), {signal: ctl.signal, cache: false, modelTier: S.cases ? 'complex' : 'default'});
+      const singles = (Array.isArray(res) ? res : res?.questions || []).map(x => validAI(x)).filter(Boolean);
+      const cases = (res?.cases || []).map(validCase).filter(Boolean);
+      if (!singles.length && !cases.length) throw {code: 'invalid_json'};
+      let note = `Claude 生成了 ${singles.length} 道小题${cases.length ? ` 和 ${cases.length} 道大题` : ''}。AI 题目偶尔会有瑕疵，觉得答案不对可以对照“知识点”页核实。`;
+      const fill = buildExam();
+      if (singles.length < S.count) { const top = fill.filter(q => q.k !== 'case').slice(0, S.count - singles.length); singles.push(...top); note += ` 小题从题库补了 ${top.length} 道。`; }
+      if (cases.length < S.cases) { const top = fill.filter(q => q.k === 'case').slice(0, S.cases - cases.length); cases.push(...top); if (top.length) note += ` 大题从题库补了 ${top.length} 道。`; }
+      S.exam = [...singles, ...cases].map(shuffleChoices);
       renderExam(title + ' · Claude');
       setStatus(note);
     } catch (e) {
@@ -1781,54 +2243,58 @@ async function generate() {
   S.exam = buildExam();
   renderExam(title);
   setStatus('');
-  if (S.exam.length < S.count) setStatus(`这个组合目前只有 ${S.exam.length} 道可用题目。加选题型或知识点、把难度设为“混合”，或改用 Claude 出题可以得到更多。`);
+  const singles = S.exam.filter(q => q.k !== 'case').length, cases = S.exam.length - singles;
+  const short = [singles < S.count ? `小题只有 ${singles} 道可用` : '', cases < S.cases ? `大题只有 ${cases} 道涉及所选知识点` : ''].filter(Boolean);
+  if (short.length) setStatus(`这个组合${short.join('，')}。多选几个知识点或题型、把难度设为“混合”，或改用 Claude 出题，可以得到更多。`);
 }
 
-async function aiGrade(i) {
-  const q = S.exam[i]; const ans = ($('#q' + i + 't').value || '').trim();
-  const box = $('#ex' + i);
-  if (!ans) { q.ai = '还没有作答，先写下你的答案再让 Claude 批改。'; box.innerHTML = explainHTML(q, i); return; }
-  q.ai = '批改中…'; box.innerHTML = explainHTML(q, i);
+async function aiGrade(key) {
+  const q = getQ(key); const ans = (el(`q${key}t`).value || '').trim();
+  const box = el('ex' + key);
+  if (!ans) { q.ai = '还没有作答，先写下你的答案再让 Claude 批改。'; box.innerHTML = explainHTML(q, key); return; }
+  q.ai = '批改中…'; box.innerHTML = explainHTML(q, key);
+  const parent = String(key).includes('-') ? S.exam[+String(key).split('-')[0]] : null;
   try {
     const r = await S.sample.json(`You are a Data 8 (UC Berkeley) TA grading a short-answer exam question. Be fair but strict about the course's precise wording (e.g. "fail to reject" not "accept"; confidence is about the process; null must be a chance model).
-Question: ${q.q}${q.code ? '\nCode:\n' + q.code : ''}
+${parent ? 'Background: ' + parent.bg + '\n' : ''}Question: ${q.q}${q.code ? '\nCode:\n' + q.code : ''}
 Model answer: ${q.a}
 Grading key points: ${(q.p || []).join(' | ')}
 Student answer: ${ans}
 Reply with ONLY JSON: {"score": 0 | 0.5 | 1, "feedback": "2-4 sentences in simplified Chinese (keep English course terms) saying what was right, what was missing or wrong, and how to phrase it on the exam"}`, {modelTier: 'default', cache: false});
     const s = [0, 0.5, 1].includes(+r?.score) ? +r.score : null;
-    q.ai = `${s == null ? '' : `建议得分 ${s} 分。`}${r?.feedback || ''}`;
-    if (s != null) { q.self = s; paintVerdict(i); if (s < 1) addMistake(q); if (S.submitted) renderResults(); }
+    q.ai = `${s == null ? '' : `建议得分 ${s * ptsOf(q)} / ${ptsOf(q)}。`}${r?.feedback || ''}`;
+    if (s != null) { q.self = s; paintVerdict(key); afterScore(key); }
   } catch (e) {
     q.ai = e?.code === 'not_granted' ? '没有获得使用 Claude 的许可，请用上面的自评按钮。' : '批改失败，请稍后再试或使用自评。';
   }
-  box.innerHTML = explainHTML(q, i);
+  box.innerHTML = explainHTML(q, key);
 }
 
 // ---------- setup rail ----------
 function renderSetup() {
   const counts = {};
-  TOPICS.forEach(t => counts[t.id] = BANK.filter(q => q.t.includes(t.id)).length + GENS.filter(g => g.t.includes(t.id)).length);
+  TOPICS.forEach(t => counts[t.id] = BANK.filter(q => q.t.includes(t.id)).length + GENS.filter(g => g.t.includes(t.id)).length + CASES.filter(c => c.t.includes(t.id)).length);
   $('#topicList').innerHTML = Object.entries(UNITS).map(([u, name]) => `<div class="unit"><h4>${name.zh} · ${name.en}</h4>` +
-    TOPICS.filter(t => t.unit === u).map(t => `<label class="topic${S.topics.has(t.id) ? ' on' : ''}" for="tp-${t.id}"><input type="checkbox" id="tp-${t.id}" data-topic="${t.id}"${S.topics.has(t.id) ? ' checked' : ''}><span>${esc(t.en)}<span class="tz">${esc(t.zh)}${WEAK.includes(t.id) ? ' · 弱项' : ''}</span></span><span class="n" title="题库题 + 随机模板">${counts[t.id]}</span></label>`).join('') + `</div>`).join('');
+    TOPICS.filter(t => t.unit === u).map(t => `<label class="topic${S.topics.has(t.id) ? ' on' : ''}" for="tp-${t.id}"><input type="checkbox" id="tp-${t.id}" data-topic="${t.id}"${S.topics.has(t.id) ? ' checked' : ''}><span>${esc(t.en)}<span class="tz">${esc(t.zh)}${WEAK.includes(t.id) ? ' · 弱项' : ''}</span></span><span class="n" title="题库题 + 随机模板 + 大题">${counts[t.id]}</span></label>`).join('') + `</div>`).join('');
   $('#selCount').textContent = `已选 ${S.topics.size}`;
-  const seg = (el, items, cur, attr) => { $(el).innerHTML = items.map(([v, label, dis]) => `<button data-${attr}="${v}" class="${(cur instanceof Set ? cur.has(v) : cur == v) ? 'on' : ''}"${dis ? ' disabled' : ''}>${label}</button>`).join(''); };
-  seg('#countSeg', [[5, '5'], [10, '10'], [15, '15'], [20, '20'], [30, '30']], S.count, 'count');
-  seg('#typeSeg', Object.entries(KIND).map(([k, v]) => [k, `${v.zh} ${v.en}`]), S.kinds, 'kind');
+  const seg = (sel, items, cur, attr) => { $(sel).innerHTML = items.map(([v, label, dis]) => `<button data-${attr}="${v}" class="${(cur instanceof Set ? cur.has(v) : cur == v) ? 'on' : ''}"${dis ? ' disabled' : ''}>${label}</button>`).join(''); };
+  seg('#countSeg', [[0, '0'], [5, '5'], [10, '10'], [15, '15'], [20, '20'], [30, '30']], S.count, 'count');
+  seg('#caseSeg', [[0, '不要'], [1, '1 道'], [2, '2 道'], [3, '3 道']], S.cases, 'cases');
+  seg('#typeSeg', Object.entries(PTS).map(([k]) => [k, `${KIND[k].zh} ${KIND[k].en}`]), S.kinds, 'kind');
   seg('#diffSeg', [['mixed', '混合 Mixed'], ['exam', '考试难度 Exam'], ['hard', '只要难题 Hard']], S.diff, 'diff');
   seg('#modeSeg', [['practice', '练习 Practice'], ['exam', '考试 Exam']], S.mode, 'mode');
   seg('#srcSeg', [['bank', '题库 + 随机模板'], ['ai', 'Claude 出新题', !S.sample]], S.src, 'src');
   $('#srcHint').textContent = S.sample
-    ? (S.src === 'ai' ? '由 Claude 按所选知识点现场出题（会用到你自己的 Claude 额度，第一次会请你授权）。' : '题库题都有标准答案和中文解析；随机模板每次生成新数字。')
-    : '题库题都有标准答案和中文解析。在 Claude 里打开本页时，还可以让 Claude 现场出新题、批改简答题。';
-  const {statics, gens} = poolFor(S.topics, S.kinds, S.diff);
-  $('#poolInfo').textContent = S.topics.size ? `当前组合：${statics.length} 道题库题 + ${gens.length} 个随机数值模板` : '';
+    ? (S.src === 'ai' ? '由 Claude 按所选知识点现场出题，大题也会现写（会用到你自己的 Claude 额度，第一次会请你授权）。' : '题库题都有标准答案和中文解析；随机模板每次生成新数字。')
+    : '题库题都有标准答案和中文解析。在 Claude 里打开本页时，还可以让 Claude 现场出新题（包括大题）、批改简答题。';
+  const {statics, gens, cases} = poolFor(S.topics, S.kinds, S.diff);
+  $('#poolInfo').textContent = S.topics.size ? `当前组合：${statics.length} 道题库小题 + ${gens.length} 个随机模板 + ${cases.length} 道大题` : '';
 }
 
 // ---------- concepts ----------
 function renderKB() {
   const term = ($('#kbSearch').value || '').trim().toLowerCase();
-  const hl = s => { const h = esc(s); if (!term) return h; const i = h.toLowerCase().indexOf(esc(term).toLowerCase()); return i < 0 ? h : h.slice(0, i) + '<mark>' + h.slice(i, i + esc(term).length) + '</mark>' + h.slice(i + esc(term).length); };
+  const hl = s => { const h = esc(s); if (!term) return h; const t = esc(term).toLowerCase(); const i = h.toLowerCase().indexOf(t); return i < 0 ? h : h.slice(0, i) + '<mark>' + h.slice(i, i + t.length) + '</mark>' + h.slice(i + t.length); };
   let shown = 0;
   const html = TOPICS.map(t => {
     const items = (KB[t.id] || []).filter(e => !term || e.join(' ').toLowerCase().includes(term) || t.en.toLowerCase().includes(term) || t.zh.includes(term));
@@ -1838,7 +2304,7 @@ function renderKB() {
       <div class="kb-list">${items.map(([name, en, zh, trap]) => `<div class="kb-item"><h3>${hl(name)}</h3><div class="en">${hl(en)}</div><div class="zh">${hl(zh)}</div>${trap ? `<div class="trap">${hl(trap)}</div>` : ''}</div>`).join('')}</div></section>`;
   }).join('');
   $('#kbBody').innerHTML = html || '<div class="empty">没有找到匹配的概念。No matching concepts.</div>';
-  $('#kbCount').textContent = `${shown} 个概念 · ${TOPICS.length} 个知识点 · 题库 ${BANK.length} 题 + ${GENS.length} 个随机模板`;
+  $('#kbCount').textContent = `${shown} 个概念 · ${TOPICS.length} 个知识点 · 题库 ${BANK.length} 道小题 + ${CASES.length} 道大题 + ${GENS.length} 个随机模板`;
 }
 
 // ---------- routing ----------
@@ -1858,35 +2324,38 @@ document.addEventListener('click', e => {
     if (d.preset === 'all') S.topics = new Set(TOPICS.map(t => t.id));
     else if (d.preset === 'none') S.topics = new Set();
     else if (d.preset === 'weak') S.topics = new Set(WEAK);
+    else if (d.preset === 'mock') {
+      S.topics = new Set(TOPICS.map(t => t.id)); S.count = 15; S.cases = 3; S.mode = 'exam'; S.diff = 'mixed';
+      S.kinds = new Set(Object.keys(PTS)); renderSetup(); generate(); if (window.innerWidth <= 900) $('.paper').scrollIntoView({behavior: 'smooth'});
+      return;
+    }
     else S.topics = new Set(TOPICS.filter(t => t.unit === d.preset).map(t => t.id));
     renderSetup(); saveSettings();
   }
-  else if (d.count) { S.count = +d.count; renderSetup(); saveSettings(); }
+  else if (d.count != null) { S.count = +d.count; renderSetup(); saveSettings(); }
+  else if (d.cases != null) { S.cases = +d.cases; renderSetup(); saveSettings(); }
   else if (d.kind) { S.kinds.has(d.kind) ? S.kinds.delete(d.kind) : S.kinds.add(d.kind); renderSetup(); saveSettings(); }
   else if (d.diff) { S.diff = d.diff; renderSetup(); saveSettings(); }
   else if (d.mode) { S.mode = d.mode; renderSetup(); saveSettings(); }
   else if (d.src) { S.src = d.src; renderSetup(); }
-  else if (d.check != null) { showResult(+d.check); }
+  else if (d.check != null) { showResult(d.check); }
   else if (d.self != null) {
-    const i = +d.self, q = S.exam[i]; q.self = +d.v; paintVerdict(i);
-    $('#ex' + i).innerHTML = explainHTML(q, i);
-    if (q.self < 1) addMistake(q); else dropMistake(q.id);
-    if (S.submitted) renderResults();
+    const q = getQ(d.self); q.self = +d.v; paintVerdict(d.self);
+    el('ex' + d.self).innerHTML = explainHTML(q, d.self); afterScore(d.self);
   }
-  else if (d.aiGrade != null) { aiGrade(+d.aiGrade); }
+  else if (d.aiGrade != null) { aiGrade(d.aiGrade); }
   else if (d.override != null) {
-    const i = +d.override, q = S.exam[i]; q.res.score = 1; dropMistake(q.id); paintVerdict(i);
-    $('#ex' + i).innerHTML = explainHTML(q, i); if (S.submitted) renderResults();
+    const q = getQ(d.override); q.res.score = 1; paintVerdict(d.override);
+    el('ex' + d.override).innerHTML = explainHTML(q, d.override); afterScore(d.override);
   }
   else if (d.drill) { S.topics = new Set([d.drill]); renderSetup(); location.hash = '#exam'; generate(); window.scrollTo(0, 0); }
   else if (d.act === 'again') { generate(); window.scrollTo(0, 0); }
   else if (d.act === 'retry') {
-    S.exam = S.exam.filter(q => { const s = q.k === 'short' ? q.self : q.res?.score; return s != null && s < 1; }).map(q => shuffleChoices(strip(q)));
+    S.exam = S.exam.filter(q => (q.k === 'case' ? q.parts : [q]).some(p => { const s = unitScore(p); return s != null && s < 1; })).map(q => shuffleChoices(strip(q)));
     renderExam('Retry · 错题重练'); setStatus(''); window.scrollTo(0, 0);
   }
-  else if (d.act === 'kb') { const t = S.exam.flatMap(q => q.t)[0]; location.hash = '#concepts'; setTimeout(() => $('#kb-' + t)?.scrollIntoView(), 50); }
+  else if (d.act === 'kb') { const t = units().map(u => u.q.t || u.parent.t)[0]?.[0]; location.hash = '#concepts'; setTimeout(() => el('kb-' + t)?.scrollIntoView(), 50); }
 });
-function dropMistake(id) { store.set('mistakes', store.get('mistakes', []).filter(m => m.id !== id)); }
 $('#topicList').addEventListener('change', e => {
   const id = e.target.dataset.topic; if (!id) return;
   e.target.checked ? S.topics.add(id) : S.topics.delete(id); renderSetup(); saveSettings();
@@ -1899,16 +2368,13 @@ $('#kbSearch').addEventListener('input', renderKB);
 $('#mkPractice').addEventListener('click', () => {
   const list = store.get('mistakes', []); if (!list.length) return;
   S.exam = R.shuffle(list).slice(0, 20).map(q => { const {ts, ...rest} = q; return shuffleChoices(rest); });
-  location.hash = '#exam'; renderExam('Mistakes Review · 错题本'); setStatus('答对的题会自动移出错题本。');
+  location.hash = '#exam'; renderExam('Mistakes Review · 错题本'); setStatus('全部答对的题会自动移出错题本。');
 });
 let clearArmed = false;
 $('#mkClear').addEventListener('click', e => {
   if (!clearArmed) { clearArmed = true; e.target.textContent = '再点一次确认清空'; setTimeout(() => { clearArmed = false; e.target.textContent = '清空 Clear'; }, 3000); return; }
   store.set('mistakes', []); clearArmed = false; e.target.textContent = '清空 Clear'; renderMistakes();
 });
-// Correct answers on retried mistakes leave the mistake book.
-const _showResult = showResult;
-showResult = function (i) { _showResult(i); const q = S.exam[i]; if (q.k !== 'short' && q.res.score >= 1) dropMistake(q.id); };
 
 // ---------- start ----------
 renderSetup(); renderKB(); renderMistakes(); route();
