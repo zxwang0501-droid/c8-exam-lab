@@ -32,7 +32,7 @@ function renderSetup() {
   const seg = (sel, items, cur, attr) => { $(sel).innerHTML = items.map(([v, label, dis]) => `<button data-${attr}="${v}" class="${(cur instanceof Set ? cur.has(v) : cur == v) ? 'on' : ''}"${dis ? ' disabled' : ''} aria-pressed="${cur instanceof Set ? cur.has(v) : cur == v}">${esc(label)}</button>`).join(''); };
   seg('#countSeg', [[0, '0'], [5, '5'], [10, '10'], [15, '15'], [20, '20'], [30, '30']], S.count, 'count');
   seg('#caseToggle', [['on', t('caseOn')], ['off', t('caseOff')]], S.caseOn ? 'on' : 'off', 'caseon');
-  seg('#caseSeg', [[1, t('caseN', {n: 1})], [2, t('caseN', {n: 2})], [3, t('caseN', {n: 3})]], S.cases, 'cases');
+  seg('#caseSeg', [1, 2, 3, 4, 5].map(n => [n, t('caseN', {n})]), S.cases, 'cases');
   $('#caseSeg').hidden = !S.caseOn;
   seg('#typeSeg', Object.keys(PTS).map(k => [k, LANG === 'zh' ? `${KIND[k].zh} ${KIND[k].en}` : KIND_L[k][LANG]]), S.kinds, 'kind');
   seg('#diffSeg', [['mixed', t('dMixed')], ['exam', t('dExam')], ['hard', t('dHard')]], S.diff, 'diff');
