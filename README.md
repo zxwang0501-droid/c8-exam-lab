@@ -22,3 +22,10 @@ Open `index.html` in any browser, or visit the GitHub Pages site.
 ## Edit
 
 The sources are in `src/`. The question bank is in `bank-*.js`, the case studies in `cases-*.js`, the randomized templates in `gen.js`, and the concepts in `kb.js`. Translations are in `tr-*.js` and the interface text in `i18n.js`. After editing, run `./build.sh`: it writes `index.html` (standalone page for GitHub Pages) and `artifact.html` (the same page for the Claude artifact).
+
+## Credits
+
+This is an unofficial study tool and is not affiliated with UC Berkeley or the Data 8 / Data C8 course staff. All questions, case studies, and concept explanations are original.
+
+- Topic coverage follows the course textbook [Computational and Inferential Thinking](https://inferentialthinking.com/) by Ani Adhikari, John DeNero, and David Wagner, licensed under [CC BY-NC-ND 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/). No text from the book is reproduced here.
+- Question formats are modeled on the past exams the course posts publicly on [data8.org](https://www.data8.org/). No exam questions are copied.
