@@ -42,6 +42,7 @@ function renderSetup() {
   renderAIPanel();
   const {statics, gens, cases} = poolFor(S.topics, S.kinds, S.diff);
   $('#poolInfo').textContent = S.topics.size ? t('pool', {a: statics.length, b: gens.length, c: S.caseOn ? cases.length : 0}) : '';
+  $('#sumLine').textContent = t('sumLine', {t: S.topics.size, q: S.count, c: nCases() ? t('sumCases', {n: nCases()}) : '', m: t(S.mode === 'exam' ? 'mExam' : 'mPractice')});
 }
 
 // ---------- concepts ----------
@@ -69,8 +70,11 @@ function renderKB() {
 }
 
 // ---------- routing ----------
+const VIEWS = ['exam', 'paper', 'concepts', 'mistakes'];
+function go(v) { if (location.hash !== '#' + v) location.hash = '#' + v; else route(); window.scrollTo(0, 0); }
+function setupErr(msg) { const m = $('#setupMsg'); m.hidden = !msg; m.textContent = msg || ''; }
 function route() {
-  const v = ['exam', 'concepts', 'mistakes'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'exam';
+  const v = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'exam';
   document.querySelectorAll('.view').forEach(s => s.hidden = s.id !== 'view-' + v);
   document.querySelectorAll('.tabs a').forEach(a => a.classList.toggle('on', a.dataset.view === v));
   if (v === 'mistakes') renderMistakes();
@@ -85,7 +89,7 @@ document.addEventListener('click', e => {
   if (d.aip) { S.ai.provider = d.aip; store.set('aiProvider', d.aip); renderAIPanel(); return; }
   if (d.act === 'chatCopy') { copyText(S.chatPrompt).then(ok => { el('chatCopied').textContent = t(ok ? 'copied' : 'copyFail'); if (!ok) { const dt = document.querySelector('.chatflow details'); if (dt) dt.open = true; el('chatPromptBox')?.select(); } }); return; }
   if (d.act === 'chatImport') {
-    try { importAIResult(parseLoose(el('chatIn').value)); window.scrollTo(0, 0); }
+    try { importAIResult(parseLoose(el('chatIn').value)); go('paper'); }
     catch { el('chatErr').textContent = t('chatBad'); }
     return;
   }
@@ -95,7 +99,7 @@ document.addEventListener('click', e => {
     else if (d.preset === 'weak') S.topics = new Set(WEAK);
     else if (d.preset === 'mock') {
       S.topics = new Set(TOPICS.map(x => x.id)); S.count = 15; S.caseOn = true; S.cases = 3; S.mode = 'exam'; S.diff = 'mixed';
-      S.kinds = new Set(Object.keys(PTS)); renderSetup(); generate(); if (window.innerWidth <= 900) $('.paper').scrollIntoView({behavior: 'smooth'});
+      S.kinds = new Set(Object.keys(PTS)); renderSetup(); generate();
       return;
     }
     else S.topics = new Set(TOPICS.filter(x => x.unit === d.preset).map(x => x.id));
@@ -107,7 +111,8 @@ document.addEventListener('click', e => {
   else if (d.kind) { S.kinds.has(d.kind) ? S.kinds.delete(d.kind) : S.kinds.add(d.kind); renderSetup(); saveSettings(); }
   else if (d.diff) { S.diff = d.diff; renderSetup(); saveSettings(); }
   else if (d.mode) { S.mode = d.mode; renderSetup(); saveSettings(); }
-  else if (d.src) { S.src = d.src; renderSetup(); }
+  else if (d.src) { S.src = d.src; if (d.src === 'ai') $('#aiBox').open = true; renderSetup(); }
+  else if (d.act === 'toSetup') { go('exam'); }
   else if (d.check != null) { showResult(d.check); }
   else if (d.self != null) {
     const q = getQ(d.self); q.self = +d.v; paintVerdict(d.self);
@@ -118,11 +123,11 @@ document.addEventListener('click', e => {
     const q = getQ(d.override); q.res.score = 1; paintVerdict(d.override);
     el('ex' + d.override).innerHTML = explainHTML(q, d.override); afterScore(d.override);
   }
-  else if (d.drill) { S.topics = new Set([d.drill]); renderSetup(); location.hash = '#exam'; generate(); window.scrollTo(0, 0); }
+  else if (d.drill) { S.topics = new Set([d.drill]); renderSetup(); generate(); }
   else if (d.act === 'again') { generate(); window.scrollTo(0, 0); }
   else if (d.act === 'retry') {
     S.exam = S.exam.filter(q => (q.k === 'case' ? q.parts : [q]).some(p => { const s = unitScore(p); return s != null && s < 1; })).map(q => prep(q._src));
-    S.title = {key: 'tRetry'}; S.endedAt = null; renderExam(); setStatus(''); window.scrollTo(0, 0);
+    S.title = {key: 'tRetry'}; S.endedAt = null; renderExam(); setStatus(''); go('paper');
   }
   else if (d.act === 'kb') { const x = units().map(u => u.q.t || u.parent.t)[0]?.[0]; location.hash = '#concepts'; setTimeout(() => el('kb-' + x)?.scrollIntoView(), 50); }
 });
@@ -130,7 +135,7 @@ $('#topicList').addEventListener('change', e => {
   const id = e.target.dataset.topic; if (!id) return;
   e.target.checked ? S.topics.add(id) : S.topics.delete(id); renderSetup(); saveSettings();
 });
-$('#genBtn').addEventListener('click', () => { generate(); if (window.innerWidth <= 900) $('.paper').scrollIntoView({behavior: 'smooth'}); });
+$('#genBtn').addEventListener('click', () => generate());
 $('#submitBtn').addEventListener('click', submitAll);
 $('#questions').addEventListener('input', updateAnswered);
 $('#questions').addEventListener('change', updateAnswered);
@@ -139,7 +144,7 @@ $('#mkPractice').addEventListener('click', () => {
   const list = store.get('mistakes', []); if (!list.length) return;
   S.exam = R.shuffle(list).slice(0, 20).map(m => { const {ts, ...src} = m; return prep(src); });
   S.title = {key: 'tMistakes'}; S.endedAt = null;
-  location.hash = '#exam'; renderExam(); setStatus(t('mkStatus'));
+  renderExam(); setStatus(t('mkStatus')); go('paper');
 });
 let clearArmed = false;
 $('#mkClear').addEventListener('click', e => {
@@ -148,7 +153,7 @@ $('#mkClear').addEventListener('click', e => {
 });
 
 // ---------- start ----------
-applyStatic(); renderSetup(); renderKB(); renderMistakes(); route();
+applyStatic(); renderSetup(); if (S.src === 'ai') $('#aiBox').open = true; renderKB(); renderMistakes(); route();
 setTitle(); S.exam = buildExam(); renderExam();
 if (window.claude?.use) {
   window.claude.use('sample').then(s => { if (s) { S.sample = s; renderSetup(); } }).catch(() => {});

@@ -17,7 +17,7 @@ const KIND_L = {
 // UI strings. zh keeps the original bilingual wording.
 const UI = {
   brandSub:{zh:'刷题机 · Foundations of Data Science', en:'Practice exams · Foundations of Data Science', es:'Exámenes de práctica · Foundations of Data Science'},
-  tabExam:{zh:'出题<small>Exam</small>', en:'Exam', es:'Examen'}, tabConcepts:{zh:'知识点<small>Concepts</small>', en:'Concepts', es:'Conceptos'}, tabMistakes:{zh:'错题本<small>Mistakes</small>', en:'Mistakes', es:'Errores'},
+  tabExam:{zh:'出题<small>Setup</small>', en:'Setup', es:'Configurar'}, tabPaper:{zh:'试卷<small>Paper</small>', en:'Paper', es:'Examen'}, tabConcepts:{zh:'知识点<small>Concepts</small>', en:'Concepts', es:'Conceptos'}, tabMistakes:{zh:'错题本<small>Mistakes</small>', en:'Mistakes', es:'Errores'},
   topics:{zh:'知识点 Topics', en:'Topics', es:'Temas'}, selCount:{zh:'已选 {n}', en:'{n} selected', es:'{n} elegidos'},
   pMock:{zh:'完整模拟考 Mock exam', en:'Full mock exam', es:'Simulacro completo'}, pWeak:{zh:'我的弱项 · 检验/区间', en:'Weak spots: tests & CIs', es:'Puntos débiles: pruebas e intervalos'},
   pM1:{zh:'期中一 MT1', en:'Midterm 1', es:'Parcial 1'}, pM2:{zh:'期中二 MT2', en:'Midterm 2', es:'Parcial 2'}, pFin:{zh:'期末新增', en:'Final-only', es:'Solo final'},
@@ -79,6 +79,12 @@ const UI = {
   tfTitle:{zh:'True or False', en:'True or False', es:'Verdadero o falso'}, tfBg:{zh:'For each statement below, choose True or False. Each part is worth 2 points.', en:'For each statement below, choose True or False. Each part is worth 2 points.', es:'Para cada afirmación, elige Verdadero o Falso. Cada parte vale 2 puntos.'},
   foot:{zh:'非官方学习工具，与 UC Berkeley 及 Data 8 / Data C8 课程团队无关。所有题目和概念解释均为原创；知识点范围参考课程教材 Computational and Inferential Thinking（Adhikari、DeNero、Wagner 著，CC BY-NC-ND 4.0），题型参考 data8.org 公开的历年考试。Unofficial study tool, not affiliated with UC Berkeley or the course staff.', en:'Unofficial study tool, not affiliated with UC Berkeley or the Data 8 / Data C8 course staff. All questions and concept explanations are original. Topic coverage follows the course textbook Computational and Inferential Thinking by Ani Adhikari, John DeNero, and David Wagner (CC BY-NC-ND 4.0), and question styles follow the past exams posted on data8.org.', es:'Herramienta de estudio no oficial, sin relación con UC Berkeley ni con el equipo de Data 8 / Data C8. Todas las preguntas y explicaciones son originales. Los temas siguen el libro del curso Computational and Inferential Thinking de Ani Adhikari, John DeNero y David Wagner (CC BY-NC-ND 4.0), y el estilo de las preguntas sigue los exámenes publicados en data8.org.'},
   langLabel:{zh:'界面语言', en:'Language', es:'Idioma'},
+  setupTitle:{zh:'出一套题', en:'Build a practice set', es:'Arma un examen de práctica'},
+  setupSub:{zh:'选好知识点和题目设置，点最下面的“生成试卷”。也可以直接点一个快捷组合。', en:'Choose topics and question settings, then press Generate exam at the bottom, or start from a preset.', es:'Elige temas y ajustes y pulsa Generar examen abajo, o empieza con un atajo.'},
+  qsTitle:{zh:'题目设置', en:'Questions', es:'Preguntas'}, msTitle:{zh:'模式和出题来源', en:'Mode and source', es:'Modo y fuente'},
+  toSetup:{zh:'← 修改设置', en:'← Edit settings', es:'← Cambiar ajustes'},
+  sumLine:{zh:'{t} 个知识点 · {q} 道小题{c} · {m}', en:'{t} topics · {q} questions{c} · {m}', es:'{t} temas · {q} preguntas{c} · {m}'},
+  sumCases:{zh:' + {n} 道大题', en:' + {n} case studies', es:' + {n} casos'},
   aiLabel:{zh:'AI 服务（出题和批改）', en:'AI service (writing and grading)', es:'Servicio de IA (crear y calificar)'},
   pvApp:{zh:'我的 Claude 账号', en:'My Claude account', es:'Mi cuenta de Claude'}, pvChat:{zh:'ChatGPT / Claude 网页（复制粘贴）', en:'ChatGPT / Claude website (copy & paste)', es:'Web de ChatGPT / Claude (copiar y pegar)'},
   pvAnthropic:{zh:'Anthropic API key', en:'Anthropic API key', es:'Clave API de Anthropic'}, pvOpenAI:{zh:'OpenAI API key', en:'OpenAI API key', es:'Clave API de OpenAI'},

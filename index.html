@@ -74,12 +74,33 @@ h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; }
 
 main { padding-block: 20px 60px; }
 .view[hidden] { display: none !important; }
-.exam-grid { display: grid; grid-template-columns: 330px minmax(0, 1fr); gap: 24px; align-items: start; }
-@media (max-width: 900px) { .exam-grid { grid-template-columns: minmax(0, 1fr); } }
+/* setup screen */
+.setup-page { display: grid; gap: 16px; max-width: 1120px; margin: 0 auto; }
+.setup-head { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: flex-end; justify-content: space-between; }
+.setup-head h2 { font-size: 26px; letter-spacing: -0.01em; }
+.setup-head p { margin: 4px 0 0; }
+.setup-msg { margin: 0; padding: 10px 14px; border-radius: 8px; background: var(--bad-soft); color: var(--bad); font-size: 14px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 18px 20px; display: grid; gap: 16px; align-content: start; min-width: 0; }
+.card-h { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.card-h h3 { font-size: 17px; }
+.card-h em { font-style: normal; font-size: 13px; color: var(--muted); }
+#topicList { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); gap: 8px 24px; align-items: start; }
+.setup-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 16px; align-items: start; }
+.field-group { display: grid; gap: 8px; }
+.field-group .hint { margin: 0; }
+.ai-box { border-top: 1px dashed var(--line); padding-top: 12px; }
+.ai-box summary { cursor: pointer; font-family: var(--f-display); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.ai-box[open] summary { margin-bottom: 12px; }
+.genbar { position: sticky; bottom: 0; z-index: 4; display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between; background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)); box-shadow: 0 -6px 20px rgba(0,0,0,.06); }
+.genbar-text { display: grid; gap: 2px; min-width: 0; }
+.genbar-text b { font-size: 14px; font-weight: 600; }
+.genbar .primary { padding: 12px 28px; }
+/* paper screen */
+.paper-page { max-width: 880px; margin: 0 auto; display: grid; gap: 12px; }
+.paper-tools { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
 
 /* setup rail */
-.setup { background: var(--card); border: 1px solid var(--line); border-radius: var(--r); padding: 18px; display: grid; gap: 16px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 72px); max-height: calc(100vh - 90px); overflow: auto; }
-@media (max-width: 900px) { .setup { position: static; max-height: none; } }
+
 .label { font-family: var(--f-display); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 .label em { font-style: normal; text-transform: none; letter-spacing: 0; font-family: var(--f-body); font-weight: 400; }
 .quick { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -151,7 +172,7 @@ textarea { font-family: var(--f-body); font-size: 14.5px; min-height: 92px; resi
 .explain .ai-fb { border-top: 1px dashed var(--line); padding-top: 8px; }
 .selfgrade { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; font-size: 13px; color: var(--muted); }
 .selfgrade button.on { background: var(--ink); color: var(--card); border-color: var(--ink); }
-.submit-bar { padding: 20px 26px; display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.submit-bar { position: sticky; bottom: 0; z-index: 3; background: var(--card); border-top: 1px solid var(--line); border-radius: 0 0 var(--r) var(--r); padding: 14px 26px calc(14px + env(safe-area-inset-bottom, 0px)); display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
 .results { padding: 22px 26px; border-top: 2px solid var(--ink); display: grid; gap: 14px; }
 .score { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
 .score b { font-family: var(--f-display); font-size: 44px; line-height: 1; font-variant-numeric: tabular-nums; }
@@ -193,6 +214,9 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; }
   .bar { grid-template-columns: minmax(0, 1fr) 70px 44px; }
   .tabs a small { display: none; }
   .top { position: static; }
+  .genbar #poolInfo { display: none; }
+  .genbar .primary { flex: 1 1 auto; }
+  .card { padding: 16px; }
   .brand span { display: none; }
 }
 .foot { color: var(--muted); font-size: 12.5px; padding-block: 0 40px; }
@@ -237,6 +261,7 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; }
   <div class="brand"><h1>Data <b>C8</b> Exam Lab</h1><span data-t="brandSub"></span></div>
   <nav class="tabs" aria-label="Sections">
     <a href="#exam" data-view="exam" data-th="tabExam"></a>
+    <a href="#paper" data-view="paper" data-th="tabPaper"></a>
     <a href="#concepts" data-view="concepts" data-th="tabConcepts"></a>
     <a href="#mistakes" data-view="mistakes" data-th="tabMistakes"></a>
   </nav>
@@ -247,9 +272,9 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; }
 
 <main class="wrap">
   <section class="view" id="view-exam">
-    <div class="exam-grid">
-      <aside class="setup" aria-label="Exam settings">
-        <div class="label"><span data-t="topics"></span> <em id="selCount"></em></div>
+    <div class="setup-page">
+      <div class="setup-head">
+        <div><h2 data-t="setupTitle"></h2><p class="hint" data-t="setupSub"></p></div>
         <div class="quick">
           <button class="pill mock" data-preset="mock" data-t="pMock"></button>
           <button class="pill weak" data-preset="weak" data-t="pWeak"></button>
@@ -259,26 +284,40 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; }
           <button class="pill" data-preset="all" data-t="pAll"></button>
           <button class="pill" data-preset="none" data-t="pNone"></button>
         </div>
+      </div>
+      <p class="setup-msg" id="setupMsg" role="alert" hidden></p>
+      <div class="card">
+        <div class="card-h"><h3 data-t="topics"></h3><em id="selCount"></em></div>
         <div id="topicList"></div>
-        <div class="label" data-t="countLabel"></div>
-        <div class="seg" id="countSeg"></div>
-        <div class="label"><span data-t="caseLabel"></span> <em data-t="caseHint"></em></div>
-        <div class="seg" id="caseToggle"></div>
-        <div class="seg" id="caseSeg"></div>
-        <div class="label" data-t="typesLabel"></div>
-        <div class="seg" id="typeSeg"></div>
-        <div class="label" data-t="diffLabel"></div>
-        <div class="seg" id="diffSeg"></div>
-        <div class="label" data-t="modeLabel"></div>
-        <div class="seg" id="modeSeg"></div>
-        <div class="label" data-t="srcLabel"></div>
-        <div class="seg" id="srcSeg"></div>
-        <p class="hint" id="srcHint"></p>
-        <div class="label" data-t="aiLabel"></div>
-        <div class="aipanel" id="aiPanel"></div>
+      </div>
+      <div class="setup-grid">
+        <div class="card">
+          <div class="card-h"><h3 data-t="qsTitle"></h3></div>
+          <div class="field-group"><div class="label" data-t="countLabel"></div><div class="seg" id="countSeg"></div></div>
+          <div class="field-group"><div class="label"><span data-t="caseLabel"></span> <em data-t="caseHint"></em></div><div class="seg" id="caseToggle"></div><div class="seg" id="caseSeg"></div></div>
+          <div class="field-group"><div class="label" data-t="typesLabel"></div><div class="seg" id="typeSeg"></div></div>
+          <div class="field-group"><div class="label" data-t="diffLabel"></div><div class="seg" id="diffSeg"></div></div>
+        </div>
+        <div class="card">
+          <div class="card-h"><h3 data-t="msTitle"></h3></div>
+          <div class="field-group"><div class="label" data-t="modeLabel"></div><div class="seg" id="modeSeg"></div></div>
+          <div class="field-group"><div class="label" data-t="srcLabel"></div><div class="seg" id="srcSeg"></div><p class="hint" id="srcHint"></p></div>
+          <details class="ai-box" id="aiBox"><summary data-t="aiLabel"></summary><div class="aipanel" id="aiPanel"></div></details>
+        </div>
+      </div>
+      <div class="genbar">
+        <div class="genbar-text"><b id="sumLine"></b><span class="hint" id="poolInfo"></span></div>
         <button class="primary" id="genBtn" data-t="genBtn"></button>
-        <p class="hint" id="poolInfo"></p>
-      </aside>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="view-paper" hidden>
+    <div class="paper-page">
+      <div class="paper-tools">
+        <button class="ghost" data-act="toSetup" data-t="toSetup"></button>
+        <button class="ghost" data-act="again" data-t="again"></button>
+      </div>
       <div class="paper">
         <div class="paper-head">
           <h2 id="paperTitle">Practice Exam</h2>
@@ -287,11 +326,11 @@ mark { background: var(--mark); color: inherit; border-radius: 2px; }
         </div>
         <div class="status" id="status" hidden></div>
         <div class="qs" id="questions"></div>
+        <div class="results" id="results" hidden></div>
         <div class="submit-bar" id="submitBar" hidden>
           <button class="primary" id="submitBtn"></button>
           <span class="hint" id="answeredInfo"></span>
         </div>
-        <div class="results" id="results" hidden></div>
       </div>
     </div>
   </section>
@@ -545,7 +584,7 @@ const KIND_L = {
 // UI strings. zh keeps the original bilingual wording.
 const UI = {
   brandSub:{zh:'刷题机 · Foundations of Data Science', en:'Practice exams · Foundations of Data Science', es:'Exámenes de práctica · Foundations of Data Science'},
-  tabExam:{zh:'出题<small>Exam</small>', en:'Exam', es:'Examen'}, tabConcepts:{zh:'知识点<small>Concepts</small>', en:'Concepts', es:'Conceptos'}, tabMistakes:{zh:'错题本<small>Mistakes</small>', en:'Mistakes', es:'Errores'},
+  tabExam:{zh:'出题<small>Setup</small>', en:'Setup', es:'Configurar'}, tabPaper:{zh:'试卷<small>Paper</small>', en:'Paper', es:'Examen'}, tabConcepts:{zh:'知识点<small>Concepts</small>', en:'Concepts', es:'Conceptos'}, tabMistakes:{zh:'错题本<small>Mistakes</small>', en:'Mistakes', es:'Errores'},
   topics:{zh:'知识点 Topics', en:'Topics', es:'Temas'}, selCount:{zh:'已选 {n}', en:'{n} selected', es:'{n} elegidos'},
   pMock:{zh:'完整模拟考 Mock exam', en:'Full mock exam', es:'Simulacro completo'}, pWeak:{zh:'我的弱项 · 检验/区间', en:'Weak spots: tests & CIs', es:'Puntos débiles: pruebas e intervalos'},
   pM1:{zh:'期中一 MT1', en:'Midterm 1', es:'Parcial 1'}, pM2:{zh:'期中二 MT2', en:'Midterm 2', es:'Parcial 2'}, pFin:{zh:'期末新增', en:'Final-only', es:'Solo final'},
@@ -607,6 +646,12 @@ const UI = {
   tfTitle:{zh:'True or False', en:'True or False', es:'Verdadero o falso'}, tfBg:{zh:'For each statement below, choose True or False. Each part is worth 2 points.', en:'For each statement below, choose True or False. Each part is worth 2 points.', es:'Para cada afirmación, elige Verdadero o Falso. Cada parte vale 2 puntos.'},
   foot:{zh:'非官方学习工具，与 UC Berkeley 及 Data 8 / Data C8 课程团队无关。所有题目和概念解释均为原创；知识点范围参考课程教材 Computational and Inferential Thinking（Adhikari、DeNero、Wagner 著，CC BY-NC-ND 4.0），题型参考 data8.org 公开的历年考试。Unofficial study tool, not affiliated with UC Berkeley or the course staff.', en:'Unofficial study tool, not affiliated with UC Berkeley or the Data 8 / Data C8 course staff. All questions and concept explanations are original. Topic coverage follows the course textbook Computational and Inferential Thinking by Ani Adhikari, John DeNero, and David Wagner (CC BY-NC-ND 4.0), and question styles follow the past exams posted on data8.org.', es:'Herramienta de estudio no oficial, sin relación con UC Berkeley ni con el equipo de Data 8 / Data C8. Todas las preguntas y explicaciones son originales. Los temas siguen el libro del curso Computational and Inferential Thinking de Ani Adhikari, John DeNero y David Wagner (CC BY-NC-ND 4.0), y el estilo de las preguntas sigue los exámenes publicados en data8.org.'},
   langLabel:{zh:'界面语言', en:'Language', es:'Idioma'},
+  setupTitle:{zh:'出一套题', en:'Build a practice set', es:'Arma un examen de práctica'},
+  setupSub:{zh:'选好知识点和题目设置，点最下面的“生成试卷”。也可以直接点一个快捷组合。', en:'Choose topics and question settings, then press Generate exam at the bottom, or start from a preset.', es:'Elige temas y ajustes y pulsa Generar examen abajo, o empieza con un atajo.'},
+  qsTitle:{zh:'题目设置', en:'Questions', es:'Preguntas'}, msTitle:{zh:'模式和出题来源', en:'Mode and source', es:'Modo y fuente'},
+  toSetup:{zh:'← 修改设置', en:'← Edit settings', es:'← Cambiar ajustes'},
+  sumLine:{zh:'{t} 个知识点 · {q} 道小题{c} · {m}', en:'{t} topics · {q} questions{c} · {m}', es:'{t} temas · {q} preguntas{c} · {m}'},
+  sumCases:{zh:' + {n} 道大题', en:' + {n} case studies', es:' + {n} casos'},
   aiLabel:{zh:'AI 服务（出题和批改）', en:'AI service (writing and grading)', es:'Servicio de IA (crear y calificar)'},
   pvApp:{zh:'我的 Claude 账号', en:'My Claude account', es:'Mi cuenta de Claude'}, pvChat:{zh:'ChatGPT / Claude 网页（复制粘贴）', en:'ChatGPT / Claude website (copy & paste)', es:'Web de ChatGPT / Claude (copiar y pegar)'},
   pvAnthropic:{zh:'Anthropic API key', en:'Anthropic API key', es:'Clave API de Anthropic'}, pvOpenAI:{zh:'OpenAI API key', en:'OpenAI API key', es:'Clave API de OpenAI'},
@@ -3726,13 +3771,14 @@ function importAIResult(res) {
 }
 
 async function generate() {
-  if (!S.topics.size) { setStatus(t('needTopic'), true); return; }
-  if (!S.kinds.size && !nCases()) { setStatus(t('needType'), true); return; }
-  saveSettings(); setTitle(); S.endedAt = null;
+  if (!S.topics.size) { go('exam'); setupErr(t('needTopic')); return; }
+  if (!S.kinds.size && !nCases()) { go('exam'); setupErr(t('needType')); return; }
+  saveSettings(); setTitle(); S.endedAt = null; setupErr('');
   if (S.src === 'ai') {
     const prompt = aiPrompt();
-    if (S.ai.provider === 'chat') { showChatFlow(prompt); return; }
-    if (!aiReady()) { setStatus(t(S.ai.provider === 'app' ? 'appWait' : 'needKey'), true); return; }
+    if (S.ai.provider === 'chat') { go('paper'); showChatFlow(prompt); return; }
+    if (!aiReady()) { go('exam'); $('#aiBox').open = true; setupErr(t(S.ai.provider === 'app' ? 'appWait' : 'needKey')); return; }
+    go('paper');
     S.aiCtl?.abort(); const ctl = S.aiCtl = new AbortController();
     $('#genBtn').disabled = true;
     setStatus(`${t('aiWorking', {n: S.count, c: nCases() ? t('aiWorkingCases', {n: nCases()}) : ''})} <span class="hint" id="aiProg"></span> <button class="ghost" id="stopAI">${t('stop')}</button>`);
@@ -3751,7 +3797,7 @@ async function generate() {
     return;
   }
   S.exam = buildExam();
-  renderExam(); setStatus('');
+  renderExam(); setStatus(''); go('paper');
   const singles = S.exam.filter(q => q.k !== 'case').length, cases = S.exam.length - singles;
   const lack = [singles < S.count ? t('shortS', {n: singles}) : '', cases < nCases() ? t('shortC', {n: cases}) : ''].filter(Boolean);
   if (lack.length) setStatus(t('short', {x: lack.join(LANG === 'zh' ? '，' : '; ')}));
@@ -3831,6 +3877,7 @@ function renderSetup() {
   renderAIPanel();
   const {statics, gens, cases} = poolFor(S.topics, S.kinds, S.diff);
   $('#poolInfo').textContent = S.topics.size ? t('pool', {a: statics.length, b: gens.length, c: S.caseOn ? cases.length : 0}) : '';
+  $('#sumLine').textContent = t('sumLine', {t: S.topics.size, q: S.count, c: nCases() ? t('sumCases', {n: nCases()}) : '', m: t(S.mode === 'exam' ? 'mExam' : 'mPractice')});
 }
 
 // ---------- concepts ----------
@@ -3858,8 +3905,11 @@ function renderKB() {
 }
 
 // ---------- routing ----------
+const VIEWS = ['exam', 'paper', 'concepts', 'mistakes'];
+function go(v) { if (location.hash !== '#' + v) location.hash = '#' + v; else route(); window.scrollTo(0, 0); }
+function setupErr(msg) { const m = $('#setupMsg'); m.hidden = !msg; m.textContent = msg || ''; }
 function route() {
-  const v = ['exam', 'concepts', 'mistakes'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'exam';
+  const v = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'exam';
   document.querySelectorAll('.view').forEach(s => s.hidden = s.id !== 'view-' + v);
   document.querySelectorAll('.tabs a').forEach(a => a.classList.toggle('on', a.dataset.view === v));
   if (v === 'mistakes') renderMistakes();
@@ -3874,7 +3924,7 @@ document.addEventListener('click', e => {
   if (d.aip) { S.ai.provider = d.aip; store.set('aiProvider', d.aip); renderAIPanel(); return; }
   if (d.act === 'chatCopy') { copyText(S.chatPrompt).then(ok => { el('chatCopied').textContent = t(ok ? 'copied' : 'copyFail'); if (!ok) { const dt = document.querySelector('.chatflow details'); if (dt) dt.open = true; el('chatPromptBox')?.select(); } }); return; }
   if (d.act === 'chatImport') {
-    try { importAIResult(parseLoose(el('chatIn').value)); window.scrollTo(0, 0); }
+    try { importAIResult(parseLoose(el('chatIn').value)); go('paper'); }
     catch { el('chatErr').textContent = t('chatBad'); }
     return;
   }
@@ -3884,7 +3934,7 @@ document.addEventListener('click', e => {
     else if (d.preset === 'weak') S.topics = new Set(WEAK);
     else if (d.preset === 'mock') {
       S.topics = new Set(TOPICS.map(x => x.id)); S.count = 15; S.caseOn = true; S.cases = 3; S.mode = 'exam'; S.diff = 'mixed';
-      S.kinds = new Set(Object.keys(PTS)); renderSetup(); generate(); if (window.innerWidth <= 900) $('.paper').scrollIntoView({behavior: 'smooth'});
+      S.kinds = new Set(Object.keys(PTS)); renderSetup(); generate();
       return;
     }
     else S.topics = new Set(TOPICS.filter(x => x.unit === d.preset).map(x => x.id));
@@ -3896,7 +3946,8 @@ document.addEventListener('click', e => {
   else if (d.kind) { S.kinds.has(d.kind) ? S.kinds.delete(d.kind) : S.kinds.add(d.kind); renderSetup(); saveSettings(); }
   else if (d.diff) { S.diff = d.diff; renderSetup(); saveSettings(); }
   else if (d.mode) { S.mode = d.mode; renderSetup(); saveSettings(); }
-  else if (d.src) { S.src = d.src; renderSetup(); }
+  else if (d.src) { S.src = d.src; if (d.src === 'ai') $('#aiBox').open = true; renderSetup(); }
+  else if (d.act === 'toSetup') { go('exam'); }
   else if (d.check != null) { showResult(d.check); }
   else if (d.self != null) {
     const q = getQ(d.self); q.self = +d.v; paintVerdict(d.self);
@@ -3907,11 +3958,11 @@ document.addEventListener('click', e => {
     const q = getQ(d.override); q.res.score = 1; paintVerdict(d.override);
     el('ex' + d.override).innerHTML = explainHTML(q, d.override); afterScore(d.override);
   }
-  else if (d.drill) { S.topics = new Set([d.drill]); renderSetup(); location.hash = '#exam'; generate(); window.scrollTo(0, 0); }
+  else if (d.drill) { S.topics = new Set([d.drill]); renderSetup(); generate(); }
   else if (d.act === 'again') { generate(); window.scrollTo(0, 0); }
   else if (d.act === 'retry') {
     S.exam = S.exam.filter(q => (q.k === 'case' ? q.parts : [q]).some(p => { const s = unitScore(p); return s != null && s < 1; })).map(q => prep(q._src));
-    S.title = {key: 'tRetry'}; S.endedAt = null; renderExam(); setStatus(''); window.scrollTo(0, 0);
+    S.title = {key: 'tRetry'}; S.endedAt = null; renderExam(); setStatus(''); go('paper');
   }
   else if (d.act === 'kb') { const x = units().map(u => u.q.t || u.parent.t)[0]?.[0]; location.hash = '#concepts'; setTimeout(() => el('kb-' + x)?.scrollIntoView(), 50); }
 });
@@ -3919,7 +3970,7 @@ $('#topicList').addEventListener('change', e => {
   const id = e.target.dataset.topic; if (!id) return;
   e.target.checked ? S.topics.add(id) : S.topics.delete(id); renderSetup(); saveSettings();
 });
-$('#genBtn').addEventListener('click', () => { generate(); if (window.innerWidth <= 900) $('.paper').scrollIntoView({behavior: 'smooth'}); });
+$('#genBtn').addEventListener('click', () => generate());
 $('#submitBtn').addEventListener('click', submitAll);
 $('#questions').addEventListener('input', updateAnswered);
 $('#questions').addEventListener('change', updateAnswered);
@@ -3928,7 +3979,7 @@ $('#mkPractice').addEventListener('click', () => {
   const list = store.get('mistakes', []); if (!list.length) return;
   S.exam = R.shuffle(list).slice(0, 20).map(m => { const {ts, ...src} = m; return prep(src); });
   S.title = {key: 'tMistakes'}; S.endedAt = null;
-  location.hash = '#exam'; renderExam(); setStatus(t('mkStatus'));
+  renderExam(); setStatus(t('mkStatus')); go('paper');
 });
 let clearArmed = false;
 $('#mkClear').addEventListener('click', e => {
@@ -3937,7 +3988,7 @@ $('#mkClear').addEventListener('click', e => {
 });
 
 // ---------- start ----------
-applyStatic(); renderSetup(); renderKB(); renderMistakes(); route();
+applyStatic(); renderSetup(); if (S.src === 'ai') $('#aiBox').open = true; renderKB(); renderMistakes(); route();
 setTitle(); S.exam = buildExam(); renderExam();
 if (window.claude?.use) {
   window.claude.use('sample').then(s => { if (s) { S.sample = s; renderSetup(); } }).catch(() => {});

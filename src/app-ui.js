@@ -231,13 +231,14 @@ function importAIResult(res) {
 }
 
 async function generate() {
-  if (!S.topics.size) { setStatus(t('needTopic'), true); return; }
-  if (!S.kinds.size && !nCases()) { setStatus(t('needType'), true); return; }
-  saveSettings(); setTitle(); S.endedAt = null;
+  if (!S.topics.size) { go('exam'); setupErr(t('needTopic')); return; }
+  if (!S.kinds.size && !nCases()) { go('exam'); setupErr(t('needType')); return; }
+  saveSettings(); setTitle(); S.endedAt = null; setupErr('');
   if (S.src === 'ai') {
     const prompt = aiPrompt();
-    if (S.ai.provider === 'chat') { showChatFlow(prompt); return; }
-    if (!aiReady()) { setStatus(t(S.ai.provider === 'app' ? 'appWait' : 'needKey'), true); return; }
+    if (S.ai.provider === 'chat') { go('paper'); showChatFlow(prompt); return; }
+    if (!aiReady()) { go('exam'); $('#aiBox').open = true; setupErr(t(S.ai.provider === 'app' ? 'appWait' : 'needKey')); return; }
+    go('paper');
     S.aiCtl?.abort(); const ctl = S.aiCtl = new AbortController();
     $('#genBtn').disabled = true;
     setStatus(`${t('aiWorking', {n: S.count, c: nCases() ? t('aiWorkingCases', {n: nCases()}) : ''})} <span class="hint" id="aiProg"></span> <button class="ghost" id="stopAI">${t('stop')}</button>`);
@@ -256,7 +257,7 @@ async function generate() {
     return;
   }
   S.exam = buildExam();
-  renderExam(); setStatus('');
+  renderExam(); setStatus(''); go('paper');
   const singles = S.exam.filter(q => q.k !== 'case').length, cases = S.exam.length - singles;
   const lack = [singles < S.count ? t('shortS', {n: singles}) : '', cases < nCases() ? t('shortC', {n: cases}) : ''].filter(Boolean);
   if (lack.length) setStatus(t('short', {x: lack.join(LANG === 'zh' ? '，' : '; ')}));
